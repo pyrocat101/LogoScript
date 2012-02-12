@@ -1,14 +1,31 @@
 var parser = require('./logo.js'),
 	fs = require('fs'),
-	util = require('util');
+	util = require('util'),
 	_ = require('underscore');
 
-var var_names = [];
-var glob_vars = [];
-var glob_names = [];
+// store byte-code and context
+var CodeObject = function (
+	name /* string */) {
+	this.args = [];
+	this.name = name;
+	//this.filename = __filename;
+	//this.firstline = 1;
+	this.var_names = [];
+	this.byte_codes = [];
+};
+CodeObject.prototype.intern_name = function (elem) {
+	//FIXME: CodeObject
+	var idx = _.indexOf(this.var_names, elem);
+	if (idx == -1) {
+		this.var_names.push(elem);
+		return this.var_names.length - 1;
+	} else {
+		return idx;
+	}
+};
 var const_pool = [];
-var byte_codes = [];
-var is_glob = true;
+var func_pool = {};
+
 var intern_const = function (pool /* array */, elem) {
 	var idx = _.indexOf(pool, elem);
 	if (idx == -1) {
@@ -18,143 +35,160 @@ var intern_const = function (pool /* array */, elem) {
 		return idx;
 	}
 };
-var intern_glob = function (names /* string array */, elem) {
-	var idx = _.indexOf(names, elem);
-	if (idx == -1) {
-		names.push(elem);
-		return names.length - 1;
-	} else {
-		return idx;
-	}
-};
-//FIXME: same logic as intern_glob
-var intern_local = function (names /* string */, elem) {
-	var idx = _.indexOf(names, elem);
-	if (idx == -1) {
-		names.push(elem);
-		return names.length - 1;
-	} else {
-		return idx;
-	}
-};
+// var put_func = function (pool /* table */, func) {
+// 	pool[func.name] = func;
+// }
+// var get_func = function (pool /* array */, name) {
+// 	return pool[func.name];
+// }
 var gen_table = {
-	'source_elements': function (ast) {
-		_.each(ast.value, gen_code);
+	'source_elements': function (ast, code) {
+		_.each(ast.value, function (x) {
+			gen_code(x, code);
+		});
 	},
-	'function_decl': function (ast) {
+	'function_decl': function (ast, code) {
 		
 	},
-	'param_list': function (ast) {
+	'param_list': function (ast, code) {
 		
 	},
-	'expression_stmt': function (ast) {
-		gen_code(ast.value);
-		byte_codes.push("POP");
+	'expression_stmt': function (ast, code) {
+		gen_code(ast.value, code);
+		code.byte_codes.push("POP");
 	},
-	'binary': function (ast) {
+	'binary': function (ast, code) {
 		//assignemnt
 		if (ast.value[0] == '=') {
 			//TODO: support more left-value
 			(function () {
 				var name = ast.value[1].value;
-				gen_code(ast.value[2]);
-				if (_.indexOf(glob_vars, name) != -1) {
-					//undefined in global scope
-					if (is_glob) {
-						//store in global scope
-						var idx = intern_glob(glob_names, name);
-						byte_codes.push("ST_GLOBAL " + idx);
-						glob_names.push(name);
-					} else {
-						//store in local scope
-						var idx = intern_local(var_names, name);
-						byte_codes.push("ST_LOCAL " + idx);
-					}
-				} else {
-					//defined in global scope
-					var idx = intern_glob(glob_names, name);
-					byte_codes.push("ST_GLOBAL " + idx);
-				}
+				gen_code(ast.value[2], code);
+				var idx = code.intern_name(name);
+				code.byte_codes.push("ST_NAME " + idx);
 			})();
 			return;
 		}
-		gen_code(ast.value[1]),
-		gen_code(ast.value[2]);
+		gen_code(ast.value[1], code),
+		gen_code(ast.value[2], code);
 		switch (ast.value[0]) {
 		case '+':
-			byte_codes.push("ADD");
+			code.byte_codes.push("ADD");
 			break;
 		case '-':
-			byte_codes.push("SUB");
+			code.byte_codes.push("SUB");
 			break;
 		case '*':
-			byte_codes.push("MUL");
+			code.byte_codes.push("MUL");
 			break;
 		case '/':
-			byte_codes.push('DIV');
+			code.byte_codes.push('DIV');
 			break;
 		case '==':
-			byte_codes.push('CEQ');
+			code.byte_codes.push('CEQ');
 			break;
 		case '!=':
-			byte_codes.push('CNEQ');
+			code.byte_codes.push('CNEQ');
 			break;
 		case '<':
-			byte_codes.push('CLT');
+			code.byte_codes.push('CLT');
 			break;
 		case '>':
-			byte_codes.push('CGT');
+			code.byte_codes.push('CGT');
 			break;
 		case '<=':
-			byte_codes.push('CLTE');
+			code.byte_codes.push('CLTE');
 			break;
 		case '>=':
-			byte_codes.push('CGTE');
+			code.byte_codes.push('CGTE');
 			break;
 		case '**':
 		//FIXME: implement power operator in parser
-			byte_codes.push('POW');
+			code.byte_codes.push('POW');
 			break;
 		case '&&':
-			byte_codes.push('AND');
+			code.byte_codes.push('AND');
 			break;
 		case '||':
-			byte_codes.push('OR');
+			code.byte_codes.push('OR');
 			break;
 		case '^':
-			byte_codes.push('XOR');
+			code.byte_codes.push('XOR');
 			break;
 		default:
-			throw new Error("invalid binary operator");
+			throw new Error('invalid binary operator');
 		}
 	},
-	'literal': function (ast) {
+	'literal': function (ast, code) {
 		var idx = intern_const(const_pool, ast.value);
-		byte_codes.push("LD_CONST " + idx);
+		code.byte_codes.push("LD_CONST " + idx);
 	},
+	'function_decl': function (ast, code) {
+		//ast.value = [name, params, body]
+		var func_name = ast.value[0].value;
+		var func = new CodeObject(func_name);
+		//FIXME: check parameter duplicates
+		_.each(ast.value[1].value, function (x) {
+			code.args.push(x.value);
+		});
+		//generate function body
+		_.each(ast.value[2], function (x) {
+			gen_code(x, func);
+		});
+		//add to function pool
+		func_pool[func.name] = func;
+	},
+	'call_expression': function (ast, code) {
+		//ast.value: [callee, args]
+		var callee_name = ast.value[0].value;
+		var argcount = ast.value[1].value.length;
+		_.each(ast.value[1].value, function (x) {
+			gen_code(x, code);
+		});
+		var argcount = ast.value[1].value.length;
+		var idx = code.intern_name(callee_name);
+		code.byte_codes.push('LD_FUNC ' + idx);
+		code.byte_codes.push('CALL_FUNC ' + argcount);
+	},
+	'return_stmt': function (ast, code) {
+		gen_code(ast.value, code);
+		code.byte_codes.push('RET_FUNC');
+	},
+	'identifier': function (ast, code) {
+		var idx = code.intern_name(ast.value);
+		code.byte_codes.push("LD_NAME " + idx);
+	}
 };
 
-var gen_code = function (ast) {
-	return (gen_table[ast.type])(ast);
+var gen_code = function (ast, code) {
+	return gen_table[ast.type](ast, code);
 };
 
-process.on('uncaughtException', function(err) {
-  console.log(err);
-});
+// process.on('uncaughtException', function(err) {
+//   console.log(err);
+// });
 if (process.argv.length < 3) {
 	throw new Error('no input file');
 };
 fs.readFile(process.argv[2], 'utf-8', function (err, data) {
 	if (err) console.log(err);
 	var ast = parser.parse(data);
-	console.log(util.inspect(ast, true, null));
-	gen_code(ast);
+	console.log(util.inspect(ast, false, null));
+	var main = new CodeObject('__main__');
+	gen_code(ast, main);
 	console.log('====BYTECODE====');
-	_.each(byte_codes, function (x) {
+	_.each(main.byte_codes, function (x) {
 		console.log(x);
 	});
 	console.log('====CONST POOL====');
 	console.log(const_pool);
-	console.log('====GLOBAL NAMES====');
-	console.log(glob_names);
-})
+	console.log('====NAMES====');
+	console.log(main.var_names);
+	console.log('====FUNCTIONS====');
+	_.each(func_pool, function (v, k) {
+		console.log('--' + k + '--');
+		_.each(v.byte_codes, function (x) {
+			console.log(x);
+		});
+	});
+});
