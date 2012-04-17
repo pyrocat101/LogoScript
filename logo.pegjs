@@ -272,7 +272,7 @@ assignment "assignment expression"
   / _ x:logical_or { return x; }
 
 logical_or "logical OR expression"
-  = _ l:logical_and _ op:('||'/'^') _ r:logical_and {
+  = _ l:logical_and _ op:('||'/'^') _ r:logical_or {
         return new Binary(op, l, r);
     }
   / _ x:logical_and { return x; }
