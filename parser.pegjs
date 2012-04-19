@@ -1,4 +1,3 @@
-
 /*
  * LogoScript parser based on ECMA script peg.js grammar.
  * (https://github.com/dmajda/pegjs/blob/master/examples/javascript.pegjs)
@@ -717,26 +716,16 @@ ForStatement
     }
 
 ContinueStatement
-  = ContinueToken _
-    label:(
-        identifier:Identifier EOS { return identifier; }
-      / EOSNoLineTerminator       { return "";         }
-    ) {
+  = ContinueToken _ EOSNoLineTerminator {
       return {
-        type:  "ContinueStatement",
-        label: label !== "" ? label : null
+        type:  "ContinueStatement"
       };
     }
 
 BreakStatement
-  = BreakToken _
-    label:(
-        identifier:Identifier EOS { return identifier; }
-      / EOSNoLineTerminator       { return ""; }
-    ) {
+  = BreakToken _ EOSNoLineTerminator {
       return {
         type:  "BreakStatement",
-        label: label !== "" ? label : null
       };
     }
 

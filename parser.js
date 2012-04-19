@@ -8585,50 +8585,7 @@ module.exports = (function(){
         if (result3 !== null) {
           var result4 = parse__();
           if (result4 !== null) {
-            var savedPos3 = pos;
-            var savedPos4 = pos;
-            var result12 = parse_Identifier();
-            if (result12 !== null) {
-              var result13 = parse_EOS();
-              if (result13 !== null) {
-                var result10 = [result12, result13];
-              } else {
-                var result10 = null;
-                pos = savedPos4;
-              }
-            } else {
-              var result10 = null;
-              pos = savedPos4;
-            }
-            var result11 = result10 !== null
-              ? (function(identifier) { return identifier; })(result10[0])
-              : null;
-            if (result11 !== null) {
-              var result9 = result11;
-            } else {
-              var result9 = null;
-              pos = savedPos3;
-            }
-            if (result9 !== null) {
-              var result5 = result9;
-            } else {
-              var savedPos2 = pos;
-              var result7 = parse_EOSNoLineTerminator();
-              var result8 = result7 !== null
-                ? (function() { return "";         })()
-                : null;
-              if (result8 !== null) {
-                var result6 = result8;
-              } else {
-                var result6 = null;
-                pos = savedPos2;
-              }
-              if (result6 !== null) {
-                var result5 = result6;
-              } else {
-                var result5 = null;;
-              };
-            }
+            var result5 = parse_EOSNoLineTerminator();
             if (result5 !== null) {
               var result1 = [result3, result4, result5];
             } else {
@@ -8644,12 +8601,11 @@ module.exports = (function(){
           pos = savedPos1;
         }
         var result2 = result1 !== null
-          ? (function(label) {
+          ? (function() {
                 return {
-                  type:  "ContinueStatement",
-                  label: label !== "" ? label : null
+                  type:  "ContinueStatement"
                 };
-              })(result1[2])
+              })()
           : null;
         if (result2 !== null) {
           var result0 = result2;
@@ -8682,50 +8638,7 @@ module.exports = (function(){
         if (result3 !== null) {
           var result4 = parse__();
           if (result4 !== null) {
-            var savedPos3 = pos;
-            var savedPos4 = pos;
-            var result12 = parse_Identifier();
-            if (result12 !== null) {
-              var result13 = parse_EOS();
-              if (result13 !== null) {
-                var result10 = [result12, result13];
-              } else {
-                var result10 = null;
-                pos = savedPos4;
-              }
-            } else {
-              var result10 = null;
-              pos = savedPos4;
-            }
-            var result11 = result10 !== null
-              ? (function(identifier) { return identifier; })(result10[0])
-              : null;
-            if (result11 !== null) {
-              var result9 = result11;
-            } else {
-              var result9 = null;
-              pos = savedPos3;
-            }
-            if (result9 !== null) {
-              var result5 = result9;
-            } else {
-              var savedPos2 = pos;
-              var result7 = parse_EOSNoLineTerminator();
-              var result8 = result7 !== null
-                ? (function() { return ""; })()
-                : null;
-              if (result8 !== null) {
-                var result6 = result8;
-              } else {
-                var result6 = null;
-                pos = savedPos2;
-              }
-              if (result6 !== null) {
-                var result5 = result6;
-              } else {
-                var result5 = null;;
-              };
-            }
+            var result5 = parse_EOSNoLineTerminator();
             if (result5 !== null) {
               var result1 = [result3, result4, result5];
             } else {
@@ -8741,12 +8654,11 @@ module.exports = (function(){
           pos = savedPos1;
         }
         var result2 = result1 !== null
-          ? (function(label) {
+          ? (function() {
                 return {
                   type:  "BreakStatement",
-                  label: label !== "" ? label : null
                 };
-              })(result1[2])
+              })()
           : null;
         if (result2 !== null) {
           var result0 = result2;
