@@ -1015,7 +1015,7 @@ module.exports = (function(){
             pos0 = pos;
             result0 = parse_NumericLiteral();
             if (result0 !== null) {
-              result0 = (function(offset, value) { return new NumericLiteral(value); })(pos0, result0);
+              result0 = (function(offset, value) { return new node.NumericLiteral(value); })(pos0, result0);
             }
             if (result0 === null) {
               pos = pos0;
@@ -1024,7 +1024,7 @@ module.exports = (function(){
               pos0 = pos;
               result0 = parse_StringLiteral();
               if (result0 !== null) {
-                result0 = (function(offset, value) { return new StringLiteral(value); })(pos0, result0);
+                result0 = (function(offset, value) { return new node.StringLiteral(value); })(pos0, result0);
               }
               if (result0 === null) {
                 pos = pos0;
@@ -1042,7 +1042,7 @@ module.exports = (function(){
         pos0 = pos;
         result0 = parse_NullToken();
         if (result0 !== null) {
-          result0 = (function(offset) { return new NullLiteral(); })(pos0);
+          result0 = (function(offset) { return new node.NullLiteral(); })(pos0);
         }
         if (result0 === null) {
           pos = pos0;
@@ -1057,7 +1057,7 @@ module.exports = (function(){
         pos0 = pos;
         result0 = parse_TrueToken();
         if (result0 !== null) {
-          result0 = (function(offset) { return new BooleanLiteral(true); })(pos0);
+          result0 = (function(offset) { return new node.BooleanLiteral(true); })(pos0);
         }
         if (result0 === null) {
           pos = pos0;
@@ -1066,7 +1066,7 @@ module.exports = (function(){
           pos0 = pos;
           result0 = parse_FalseToken();
           if (result0 !== null) {
-            result0 = (function(offset) { return new BooleanLiteral(false); })(pos0);
+            result0 = (function(offset) { return new node.BooleanLiteral(false); })(pos0);
           }
           if (result0 === null) {
             pos = pos0;
@@ -3014,7 +3014,7 @@ module.exports = (function(){
         pos0 = pos;
         result0 = parse_Identifier();
         if (result0 !== null) {
-          result0 = (function(offset, name) { return new Variable(name); })(pos0, result0);
+          result0 = (function(offset, name) { return new node.Variable(name); })(pos0, result0);
         }
         if (result0 === null) {
           pos = pos0;
@@ -3109,7 +3109,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, name, arguments) {
-              return new FunctionCall(name, arguments);
+              return new node.FunctionCall(name, arguments);
             })(pos0, result0[0], result0[2]);
         }
         if (result0 === null) {
@@ -3315,7 +3315,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, expression, operator) {
-              return new PostfixExpression(operator, expression);
+              return new node.PostfixExpression(operator, expression);
             })(pos0, result0[0], result0[2]);
         }
         if (result0 === null) {
@@ -3546,7 +3546,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -3711,7 +3711,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -3924,7 +3924,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4051,7 +4051,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4189,7 +4189,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4305,7 +4305,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4459,7 +4459,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4613,7 +4613,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4767,7 +4767,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -4910,7 +4910,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -5054,7 +5054,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, condition, trueExpression, falseExpression) {
-              return new ConditionalExpression(
+              return new node.ConditionalExpression(
                   condition, trueExpression, falseExpression);
             })(pos0, result0[0], result0[4], result0[8]);
         }
@@ -5337,7 +5337,7 @@ module.exports = (function(){
           result0 = (function(offset, head, tail) {
               var result = head;
               for (var i = 0; i < tail.length; i++) {
-                result = new BinaryExpression(
+                result = new node.BinaryExpression(
                     tail[i][1], result, tail[i][3]);
               }
               return result;
@@ -5443,7 +5443,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, statements) {
-              return new Block(statements !== "" ? statements[0] : []);
+              return new node.Block(statements !== "" ? statements[0] : []);
             })(pos0, result0[2]);
         }
         if (result0 === null) {
@@ -5538,7 +5538,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, declarations) {
-              return new VariableStatement(declarations);
+              return new node.VariableStatement(declarations);
             })(pos0, result0[0]);
         }
         if (result0 === null) {
@@ -5679,7 +5679,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, name, value) {
-              return new VariableDeclaration(name, value);
+              return new node.VariableDeclaration(name, value);
             })(pos0, result0[0], result0[2]);
         }
         if (result0 === null) {
@@ -5771,7 +5771,7 @@ module.exports = (function(){
           }
         }
         if (result0 !== null) {
-          result0 = (function(offset) { return new EmptyStatement(); })(pos0);
+          result0 = (function(offset) { return new node.EmptyStatement(); })(pos0);
         }
         if (result0 === null) {
           pos = pos0;
@@ -5944,7 +5944,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, condition, ifStatement, elseStatement) {
-              return new IfStatement(condition, ifStatement,
+              return new node.IfStatement(condition, ifStatement,
                   elseStatement !== "" ? elseStatement[3] : null);
             })(pos0, result0[4], result0[8], result0[9]);
         }
@@ -6064,7 +6064,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, statement, condition) {
-              return new DoWhileStatement(condition, statement);
+              return new node.DoWhileStatement(condition, statement);
             })(pos0, result0[2], result0[8]);
         }
         if (result0 === null) {
@@ -6152,7 +6152,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, condition, statement) {
-              return new WhileStatement(condition, statement);
+              return new node.WhileStatement(condition, statement);
             })(pos0, result0[4], result0[8]);
         }
         if (result0 === null) {
@@ -6187,7 +6187,7 @@ module.exports = (function(){
                 result4 = parse_VariableDeclarationList();
                 if (result4 !== null) {
                   result4 = (function(offset, declarations) {
-                          return new VariableStatement(declarations);
+                          return new node.VariableStatement(declarations);
                         })(pos2, result4);
                 }
                 if (result4 === null) {
@@ -6319,7 +6319,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, initializer, test, counter, statement) {
-              return new ForStatement(
+              return new node.ForStatement(
                   initializer !== "" ? initializer : null,
                   test !== "" ? test : null,
                   counter !== "" ? counter : null,
@@ -6359,7 +6359,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset) {
-              return new ContinueStatement();
+              return new node.ContinueStatement();
             })(pos0);
         }
         if (result0 === null) {
@@ -6395,7 +6395,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset) {
-              return new BreakStatement();
+              return new node.BreakStatement();
             })(pos0);
         }
         if (result0 === null) {
@@ -6461,7 +6461,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, value) {
-              return new ReturnStatement(value !== "" ? value : null);
+              return new node.ReturnStatement(value !== "" ? value : null);
             })(pos0, result0[2]);
         }
         if (result0 === null) {
@@ -6602,7 +6602,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, name, params, elements) {
-              return new Function_(
+              return new node.Function_(
                   name, params !== "" ? params : [], elements);
             })(pos0, result0[2], result0[6], result0[12]);
         }
@@ -6742,7 +6742,7 @@ module.exports = (function(){
         result0 = result0 !== null ? result0 : "";
         if (result0 !== null) {
           result0 = (function(offset, elements) {
-              return new Program(elements !== "" ? elements : []);
+              return new node.Program(elements !== "" ? elements : []);
             })(pos0, result0);
         }
         if (result0 === null) {
@@ -6873,7 +6873,7 @@ module.exports = (function(){
       }
       
       
-        require('./node');
+        node = require('./node');
       
       
       var result = parseFunctions[startRule]();

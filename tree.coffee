@@ -1,5 +1,5 @@
-ast = require ast
-require symTable
+ast = require './node'
+#symTable = require './symTable'
 
 # This is AST tree visitor base class.
 # Subclass this base class for custom visiting methods.
@@ -75,10 +75,9 @@ class BaseASTVisitor
     @['_on' + event] = (obj) ->
       cb.apply(ctx, obj)
 
-class FirstPassVisitor extends BaseASTVisitor
-  # in the 1st pass, we construct constant table and 
+class @FirstPassVisitor extends BaseASTVisitor
+  # In the 1st pass, we construct constant table and 
   # gather symbol information.
-  constructor: (@tabSet.consts, @symTable) ->
   constructor: (@tabSet) ->
     @on 'funcDecl', (node) ->
       # create entry for function
@@ -87,19 +86,19 @@ class FirstPassVisitor extends BaseASTVisitor
       # create symbol
       @tabSet.funcs.add node.name
 
-  visitNumbericLiteral = (node) ->
+  visitNumbericLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
 
-  visitStringLiteral = (node) ->
+  visitStringLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
 
-  visitNullLiteral = (node) ->
+  visitNullLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
 
-  visitBooleanLiteral = (node) ->
+  visitBooleanLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
 
-  visitVariable = (node) ->
+  visitVariable: (node) ->
     # check for local scope, then global scope
     unless @tabSet.currentTab.contains node.name
       unless @tabSet.isGlobal node.name
@@ -110,7 +109,7 @@ class FirstPassVisitor extends BaseASTVisitor
     node.symInfo = @tabSet.currentTab.get node.name
 
   # TODO change logic to suit new synbol table machanism from here!
-  visitFunctionCall = (node) ->
+  visitFunctionCall: (node) ->
     # check for function name in symbol table
     unless @tabSet.funcs.contains node.name
       #TODO handle error
@@ -118,7 +117,7 @@ class FirstPassVisitor extends BaseASTVisitor
     # ref to symbol entry
     node.symInfo = @tabSet.funcs.get node.name
   
-  visitVariableDeclaration = (node) ->
+  visitVariableDeclaration: (node) ->
     unless @tabSet.currentTab.contains node.name
       unless @tabSet.isGlobal node.name
         # declare local variable
@@ -127,6 +126,82 @@ class FirstPassVisitor extends BaseASTVisitor
       node.symInfo = @tabSet.globals.get node.name
     node.symInfo = @tabSet.currentTab.get node.name
 
-  visitFunction = (node) ->
+  visitFunction_: (node) ->
     # exit symbol table entry
     @tabSet.enterGlobal()
+
+class @SecondPassVisitor extends BaseASTVisitor
+  # In the 2nd pass, we assign code generator to nodes.
+  constructor: (@gen) ->
+
+  visitVariable: (node) ->
+    node.codeGen = @gen.genVariable
+
+  visitNumbericLiteral: (node) ->
+    node.codeGen = @gen.genLiteral
+
+  visitStringLiteral: (node) ->
+    node.codeGen = @gen.genLiteral
+
+  visitNullLiteral: (node) ->
+    node.codeGen = @gen.genVariable
+
+  visitBooleanLiteral: (node) ->
+    node.codeGen = @gen.genVariable
+
+  visitFunctionCall: (node) ->
+    node.codeGen = @gen.genFunctionCall
+
+  visitPostfixExpression: (node) ->
+    node.codeGen = @gen.genPostfixExpression
+
+  visitUnaryExpression: (node) ->
+    node.codeGen = @gen.genUnaryExpression
+
+  visitBinaryExpression: (node) ->
+    node.codeGen = @gen.genBinaryExpression
+
+  visitConditionalExpression: (node) ->
+    node.codeGen = @gen.genConditionalExpression
+
+  visitAssignmentExpression: (node) ->
+    node.codeGen = @gen.genAssignmentExpression
+
+  visitBlock: (node) ->
+    node.codeGen = @gen.genBlock
+
+  visitVariableStatement: (node) ->
+    node.codeGen = @gen.genVariableStatement
+
+  visitVariableDeclaration: (node) ->
+    node.codeGne = @gen.genVariableDeclaration
+
+  visitEmptyStatement: (node) ->
+    node.codeGen = @gen.genEmptyStatement
+
+  visitIfStatement: (node) ->
+    node.codeGen = @gen.genIfStatement
+
+  visitDoWhileStatement: (node) ->
+    node.codeGen = @gen.genDoWhileStatement
+
+  visitWhileStatement: (node) ->
+    node.codeGen = @gen.genWhileStatement
+
+  visitForStatement: (node) ->
+    node.codeGen = @gen.genForStatement
+
+  visitContinueStatement: (node) ->
+    node.codeGen = @gen.genContinueStatement
+
+  visitBreakStatement: (node) ->
+    node.codeGen = @gen.genBreakStatement
+
+  visitReturnStatement: (node) ->
+    node.codeGen = @gen.genReturnStatement
+
+  visitFunction_: (node) ->
+    node.codeGen = @gen.genFunction
+
+  genProgram: (node) ->
+    node.codeGen = @gen.genProgram

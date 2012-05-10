@@ -2,17 +2,17 @@ op = require './opcodes'
 util = require 'util'
 
 # This is the generated code object of our script.
-class CodeObject
+class @CodeObject
   constructor: (consts, globals, funcs, locals) ->
     @code = []
-    _initFuncCodes funcs.count
+    @_initFuncCodes funcs.count
     # current generate context is @code
     @currentCode = @code
     # init names
-    _initConsts consts
-    _initGlobalNames globals
-    _initFuncNames funcs
-    _initLocalNames locals
+    @_initConsts consts
+    @_initGlobalNames globals
+    @_initFuncNames funcs
+    @_initLocalNames locals
 
   # init func codes
   _initFuncCodes: (count) ->

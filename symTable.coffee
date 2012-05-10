@@ -7,7 +7,7 @@
 # private function to count keys in an associative array
 _dictCount = (obj) -> Object.keys(obj).length()
 
-class @ConstTable
+class ConstTable
   constructor: (name) ->
     @name = name
     @_set = {}
@@ -23,10 +23,10 @@ class @ConstTable
   forEach: (cb, ctx = this) ->
     cb.call(ctx, k, nr) for own k, nr of @_set
 
-class @SymTabEntry
+class SymTabEntry
   constructor: (@flag, @number) ->
 
-class @SymTable
+class SymTable
   constructor: ->
     @_dict = {}
 
@@ -41,18 +41,18 @@ class @SymTable
   get: (name) -> @_dict[name]
 
   forEach: (cb, ctx = this) ->
-    cb.call(ctx, k, ste) for own k, ste of @_dict 
+    cb.call(ctx, k, ste) for own k, ste of @_dict
 
-class @GlobalVars extends SymTable
+class GlobalVars extends SymTable
   add: (name) -> @_add name, SYM_GLOBAL
 
-class @LocalVars extends SymTable
+class LocalVars extends SymTable
   add: (name) -> @_add name, SYM_LOCAL
 
-class @FuncTable extends SymTable
+class FuncTable extends SymTable
   add: (name) -> @_add name, SYM_FUNC
 
-class @SymTabSet
+class SymTabSet
   constructor: ->
     @globals = new GlobalVars()
     @locals = {}
@@ -70,6 +70,15 @@ class @SymTabSet
   
   # create a local symbol scope and set it as current scope
   addLocal: (name) ->
-    localTab = new LocalVars()
+    localTab = new @LocalVars()
     @locals[name] = localTab
     @enter localTab
+
+
+# exports
+@ConstTable = ConstTable
+@GlobalVars = GlobalVars
+@LocalVars = LocalVars
+@FuncTable = FuncTable
+@SymTabSet = SymTabSet
+@SymTabEntry = SymTabEntry
