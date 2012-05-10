@@ -98,7 +98,7 @@ _binExpression = (ctx, op, l, r) ->
 @ReturnStatement = (value) ->
     _setProperty this, 'value', value, Object
 
-@Function = (name, params, elems) ->
+@Function_ = (name, params, elems) ->
     _setProperty this, 'name', name, String
     _setProperty this, 'params', params, Array
     _setProperty this, 'elements', elems, Object

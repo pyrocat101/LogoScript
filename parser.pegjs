@@ -7,6 +7,10 @@
  * easily used by various JavaScript processors, transformers, etc.
  */
 
+{
+  require('./node');
+}
+
 start
   = __ program:Program __ { return program; }
 
@@ -88,25 +92,15 @@ Keyword
 Literal
   = NullLiteral
   / BooleanLiteral
-  / value:NumericLiteral {
-      return {
-        type:  "NumericLiteral",
-        value: value
-      };
-    }
-  / value:StringLiteral {
-      return {
-        type:  "StringLiteral",
-        value: value
-      };
-    }
+  / value:NumericLiteral { return new NumericLiteral(value); }
+  / value:StringLiteral { return new StringLiteral(value); }
 
 NullLiteral
-  = NullToken { return { type: "NullLiteral" }; }
+  = NullToken { return new NullLiteral(); }
 
 BooleanLiteral
-  = TrueToken  { return { type: "BooleanLiteral", value: true  }; }
-  / FalseToken { return { type: "BooleanLiteral", value: false }; }
+  = TrueToken  { return new BooleanLiteral(true); }
+  / FalseToken { return new BooleanLiteral(false); }
 
 NumericLiteral "number"
   = literal:(HexIntegerLiteral / DecimalLiteral) !IdentifierStart {
@@ -277,17 +271,13 @@ __
 /* ===== A.3 Expressions ===== */
 
 PrimaryExpression
-  = name:Identifier { return { type: "Variable", name: name }; }
+  = name:Identifier { return new Variable(name); }
   / Literal
   / "(" __ expression:Expression __ ")" { return expression; }
 
 CallExpression
   = name:PrimaryExpression __ arguments:Arguments {
-      return {
-        type:      "FunctionCall",
-        name:      name,
-        arguments: arguments
-      };
+      return new FunctionCall(name, arguments);
     }
 
 Arguments
@@ -305,18 +295,14 @@ ArgumentList
   }
 
 LeftHandSideExpression
-  = CallExpression
-  / PrimaryExpression
+  = PrimaryExpression
 
 PostfixExpression
   = expression:LeftHandSideExpression _ operator:PostfixOperator {
-      return {
-        type:       "PostfixExpression",
-        operator:   operator,
-        expression: expression
-      };
+      return new PostfixExpression(operator, expression);
     }
-  / LeftHandSideExpression
+  / CallExpression
+  / PrimaryExpression
 
 PostfixOperator
   = "++"
@@ -325,11 +311,7 @@ PostfixOperator
 UnaryExpression
   = PostfixExpression
   / operator:UnaryOperator __ expression:UnaryExpression {
-      return {
-        type:       "UnaryExpression",
-        operator:   operator,
-        expression: expression
-      };
+      return UnaryExpression(operator, expression);
     }
 
 UnaryOperator
@@ -346,12 +328,8 @@ MultiplicativeExpression
     tail:(__ MultiplicativeOperator __ UnaryExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -364,12 +342,8 @@ AdditiveExpression
     tail:(__ AdditiveOperator __ MultiplicativeExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -383,12 +357,8 @@ ShiftExpression
     tail:(__ ShiftOperator __ AdditiveExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -403,12 +373,8 @@ RelationalExpression
     tail:(__ RelationalOperator __ ShiftExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -424,12 +390,8 @@ EqualityExpression
     tail:(__ EqualityOperator __ RelationalExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -443,12 +405,8 @@ BitwiseANDExpression
     tail:(__ BitwiseANDOperator __ EqualityExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -461,12 +419,8 @@ BitwiseXORExpression
     tail:(__ BitwiseXOROperator __ BitwiseANDExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -479,12 +433,8 @@ BitwiseORExpression
     tail:(__ BitwiseOROperator __ BitwiseXORExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -497,12 +447,8 @@ LogicalANDExpression
     tail:(__ LogicalANDOperator __ BitwiseORExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -515,12 +461,8 @@ LogicalORExpression
     tail:(__ LogicalOROperator __ LogicalANDExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -532,12 +474,8 @@ ConditionalExpression
   = condition:LogicalORExpression __
     "?" __ trueExpression:AssignmentExpression __
     ":" __ falseExpression:AssignmentExpression {
-      return {
-        type:            "ConditionalExpression",
-        condition:       condition,
-        trueExpression:  trueExpression,
-        falseExpression: falseExpression
-      };
+      return new ConditionalExpression(
+          condition, trueExpression, falseExpression);
     }
   / LogicalORExpression
 
@@ -545,18 +483,12 @@ AssignmentExpression
   = left:LeftHandSideExpression __
     operator:AssignmentOperator __
     right:AssignmentExpression {
-      return {
-        type:     "AssignmentExpression",
-        operator: operator,
-        left:     left,
-        right:    right
-      };
+      return AssignmentExpression(operator, left, right);
     }
   / ConditionalExpression
 
 AssignmentOperator
-  = "=" (!"=") { return "="; }
-  / "*="
+  = "*="
   / "/="
   / "%="
   / "+="
@@ -573,12 +505,8 @@ Expression
     tail:(__ "," __ AssignmentExpression)* {
       var result = head;
       for (var i = 0; i < tail.length; i++) {
-        result = {
-          type:     "BinaryExpression",
-          operator: tail[i][1],
-          left:     result,
-          right:    tail[i][3]
-        };
+        result = new BinaryExpression(
+            tail[i][1], result, tail[i][3]);
       }
       return result;
     }
@@ -599,10 +527,7 @@ Statement
 
 Block
   = "{" __ statements:(StatementList __)? "}" {
-      return {
-        type:       "Block",
-        statements: statements !== "" ? statements[0] : []
-      };
+      return new Block(statements !== "" ? statements[0] : []);
     }
 
 StatementList
@@ -616,10 +541,7 @@ StatementList
 
 VariableStatement
   = declarations:VariableDeclarationList EOS {
-      return {
-        type:         "VariableStatement",
-        declarations: declarations
-      };
+      return new VariableStatement(declarations);
     }
 
 VariableDeclarationList
@@ -632,19 +554,15 @@ VariableDeclarationList
     }
 
 VariableDeclaration
-  = name:Identifier __ value:Initialiser? {
-      return {
-        type:  "VariableDeclaration",
-        name:  name,
-        value: value !== "" ? value : null
-      };
+  = name:Identifier __ value:Initialiser {
+      return new VariableDeclaration(name, value);
     }
 
 Initialiser
-  = "=" (!"=") __ expression:AssignmentExpression { return expression; }
+  = "=" (!"=") __ expression:(VariableDeclaration/AssignmentExpression) { return expression; }
 
 EmptyStatement
-  = ";" { return { type: "EmptyStatement" }; }
+  = ";" { return new EmptyStatement(); }
 
 ExpressionStatement
   = !("{" / FunctionToken) expression:Expression EOS { return expression; }
@@ -654,12 +572,8 @@ IfStatement
     "(" __ condition:Expression __ ")" __
     ifStatement:Statement
     elseStatement:(__ ElseToken __ Statement)? {
-      return {
-        type:          "IfStatement",
-        condition:     condition,
-        ifStatement:   ifStatement,
-        elseStatement: elseStatement !== "" ? elseStatement[3] : null
-      };
+      return new IfStatement(condition, ifStatement,
+          elseStatement !== "" ? elseStatement[3] : null);
     }
 
 IterationStatement
@@ -671,20 +585,12 @@ DoWhileStatement
   = DoToken __
     statement:Statement __
     WhileToken __ "(" __ condition:Expression __ ")" EOS {
-      return {
-        type: "DoWhileStatement",
-        condition: condition,
-        statement: statement
-      };
+      return new DoWhileStatement(condition, statement);
     }
 
 WhileStatement
   = WhileToken __ "(" __ condition:Expression __ ")" __ statement:Statement {
-      return {
-        type: "WhileStatement",
-        condition: condition,
-        statement: statement
-      };
+      return new WhileStatement(condition, statement);
     }
 
 ForStatement
@@ -692,10 +598,7 @@ ForStatement
     "(" __
     initializer:(
         declarations:VariableDeclarationList {
-          return {
-            type:         "VariableStatement",
-            declarations: declarations
-          };
+          return new VariableStatement(declarations);
         }
       / Expression?
     ) __
@@ -706,27 +609,21 @@ ForStatement
     ")" __
     statement:Statement
     {
-      return {
-        type:        "ForStatement",
-        initializer: initializer !== "" ? initializer : null,
-        test:        test !== "" ? test : null,
-        counter:     counter !== "" ? counter : null,
-        statement:   statement
-      };
+      return new ForStatement(
+          initializer !== "" ? initializer : null,
+          test !== "" ? test : null,
+          counter !== "" ? counter : null,
+          statement);
     }
 
 ContinueStatement
   = ContinueToken _ EOSNoLineTerminator {
-      return {
-        type:  "ContinueStatement"
-      };
+      return new ContinueStatement();
     }
 
 BreakStatement
   = BreakToken _ EOSNoLineTerminator {
-      return {
-        type:  "BreakStatement",
-      };
+      return new BreakStatement();
     }
 
 ReturnStatement
@@ -735,10 +632,7 @@ ReturnStatement
         expression:Expression EOS { return expression; }
       / EOSNoLineTerminator       { return ""; }
     ) {
-      return {
-        type:  "ReturnStatement",
-        value: value !== "" ? value : null
-      };
+      return new ReturnStatement(value !== "" ? value : null);
     }
 
 /* ===== A.5 Functions and Programs ===== */
@@ -747,12 +641,8 @@ FunctionDeclaration
   = FunctionToken __ name:Identifier __
     "(" __ params:FormalParameterList? __ ")" __
     "{" __ elements:FunctionBody __ "}" {
-      return {
-        type:     "Function",
-        name:     name,
-        params:   params !== "" ? params : [],
-        elements: elements
-      };
+      return new Function_(
+          name, params !== "" ? params : [], elements);
     }
 
 FormalParameterList
@@ -769,10 +659,7 @@ FunctionBody
 
 Program
   = elements:SourceElements? {
-      return {
-        type:     "Program",
-        elements: elements !== "" ? elements : []
-      };
+      return new Program(elements !== "" ? elements : []);
     }
 
 SourceElements
