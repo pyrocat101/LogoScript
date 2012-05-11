@@ -7,86 +7,70 @@ ast = require './node'
 # The node is passed as an argument into the vistor.
 class BaseASTVisitor
   # entry point for visiting nodes
-  dispatch: (node) ->
-    # Children-first traverse
-    type = ast.getType(node)
-    switch type
-      when ast.FunctionCall
-        @dispatch node.name
-        # iterate over all arguments
-        @dispatch arg for arg in node.arguments
-        @_dispatch type, node
-      when ast.PostfixExpression, ast.UnaryExpression
-        @dispatch node.expression
-        @_dispatch type, node
-      when ast.BinaryExpression, ast.AssignmentExpression
-        @dispatch node.left
-        @dispatch node.right
-        @_dispatch type, node
-      when ast.ConditionalExpression
-        @dispatch node.condition
-        @dispatch node.trueExpression
-        @dispatch node.falseExpression
-        @_dispatch type, node
-      when ast.Block
-        @dispatch stmt for stmt in node.statements
-        @_dispatch type, node
-      when ast.VariableStatement
-        @dispatch decl for decl in node.declarations
-        @_dispatch type, node
-      when ast.VariableDeclaration
-        @dispatch node.value
-        @_dispatch type, node
-      when ast.IfStatement
-        @dispatch node.condition
-        @dispatch node.ifStatement
-        @dispatch node.elseStatement
-        @_dispatch type, node
-      when ast.DoWhileStatement, ast.WhileStatement
-        @dispatch node.condition
-        @dispatch node.statement
-        @_dispatch type, node
-      when ast.ForStatement
-        @dispatch node.initializer
-        @dispatch node.test
-        @dispatch node.counter
-        @dispatch node.statement
-        @_dispatch type, node
-      when ast.ReturnStatement
-        @dispatch node.value
-        @_dispatch type, node
-      when ast.Function
-        # onFuncDecl event
-        @_onfuncDecl?(node)
-        # iterate over arguments
-        @dispatch param for param in node.params
-        @dispatch node.elements
-        @_dispatch type, node
-      when ast.Program
-        @dispatch elem for elem in node.elements
-        @_dispatch type, node
-      else @_dispatch type, node
+  visitNumericLiteral: (node) ->
 
-  _dispatch: (type, node) ->
-    funcName = 'visit' + type.name
-    if @[funcName]? then @[funcName](node)
+  visitStringLiteral: (node) ->
 
-  on: (event, cb, ctx = this) ->
-    @['_on' + event] = (obj) ->
-      cb.apply(ctx, obj)
+  visitNullLiteral: (node) ->
+
+  visitBooleanLiteral: (node) ->
+
+  visitVariable: (node) ->
+
+  visitFunctionCall: (node) ->
+
+  visitPostfixExpression: (node) ->
+
+  visitUnaryExpression: (node) ->
+
+  visitBinaryExpression: (node) ->
+
+  visitConditionalExpression: (node) ->
+
+  visitAssignmentExpression: (node) ->
+
+  visitBlock: (node) ->
+
+  visitVariableStatement: (node) ->
+
+  visitVariableDeclaration: (node) ->
+
+  visitEmptyStatement: (node) ->
+
+  visitIfStatement: (node) ->
+
+  visitDoWhileStatement: (node) ->
+
+  visitWhileStatement: (node) ->
+
+  visitForStatement: (node) ->
+
+  visitContinueStatement: (node) ->
+  
+  visitBreakStatement: (node) ->
+
+  visitReturnStatement: (node) ->
+
+  visitFunction_: (node) ->
+
+  visitProgram: (node) ->
+
+  enter: (nodeName, node) ->
+    @['enter' + nodeName]?(node)
 
 class @FirstPassVisitor extends BaseASTVisitor
   # In the 1st pass, we construct constant table and 
   # gather symbol information.
   constructor: (@tabSet) ->
-    @on 'funcDecl', (node) ->
-      # create entry for function
-      # FIXME check for redefine
-      @tabSet.addLocal node.name
-      # create symbol
-      @tabSet.funcs.add node.name
 
-  visitNumbericLiteral: (node) ->
+  enterFunction_: (node) ->
+    # create entry for function
+    # FIXME check for redefine
+    @tabSet.addLocal node.name
+    # create symbol
+    @tabSet.funcs.add node.name
+
+  visitNumericLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
 
   visitStringLiteral: (node) ->
@@ -102,7 +86,7 @@ class @FirstPassVisitor extends BaseASTVisitor
     # check for local scope, then global scope
     unless @tabSet.currentTab.contains node.name
       unless @tabSet.isGlobal node.name
-        throw new Error("undefined variable '" + node.name + '"')
+        throw new Error "undefined variable '#{node.name}'"
       # add global variable symbol info
       node.symInfo = @tabSet.globals.get node.name
     # add local variable symbol info
@@ -113,7 +97,7 @@ class @FirstPassVisitor extends BaseASTVisitor
     # check for function name in symbol table
     unless @tabSet.funcs.contains node.name
       #TODO handle error
-      throw new Error("undefined function '" + node.name + "'")
+      throw new Error "undefined function '#{node.name}'"
     # ref to symbol entry
     node.symInfo = @tabSet.funcs.get node.name
   
@@ -135,73 +119,73 @@ class @SecondPassVisitor extends BaseASTVisitor
   constructor: (@gen) ->
 
   visitVariable: (node) ->
-    node.codeGen = @gen.genVariable
+    node.genCode = @gen.genVariable
 
-  visitNumbericLiteral: (node) ->
-    node.codeGen = @gen.genLiteral
+  visitNumericLiteral: (node) ->
+    node.genCode = @gen.genLiteral
 
   visitStringLiteral: (node) ->
-    node.codeGen = @gen.genLiteral
+    node.genCode = @gen.genLiteral
 
   visitNullLiteral: (node) ->
-    node.codeGen = @gen.genVariable
+    node.genCode = @gen.genVariable
 
   visitBooleanLiteral: (node) ->
-    node.codeGen = @gen.genVariable
+    node.genCode = @gen.genVariable
 
   visitFunctionCall: (node) ->
-    node.codeGen = @gen.genFunctionCall
+    node.genCode = @gen.genFunctionCall
 
   visitPostfixExpression: (node) ->
-    node.codeGen = @gen.genPostfixExpression
+    node.genCode = @gen.genPostfixExpression
 
   visitUnaryExpression: (node) ->
-    node.codeGen = @gen.genUnaryExpression
+    node.genCode = @gen.genUnaryExpression
 
   visitBinaryExpression: (node) ->
-    node.codeGen = @gen.genBinaryExpression
+    node.genCode = @gen.genBinaryExpression
 
   visitConditionalExpression: (node) ->
-    node.codeGen = @gen.genConditionalExpression
+    node.genCode = @gen.genConditionalExpression
 
   visitAssignmentExpression: (node) ->
-    node.codeGen = @gen.genAssignmentExpression
+    node.genCode = @gen.genAssignmentExpression
 
   visitBlock: (node) ->
-    node.codeGen = @gen.genBlock
+    node.genCode = @gen.genBlock
 
   visitVariableStatement: (node) ->
-    node.codeGen = @gen.genVariableStatement
+    node.genCode = @gen.genVariableStatement
 
   visitVariableDeclaration: (node) ->
     node.codeGne = @gen.genVariableDeclaration
 
   visitEmptyStatement: (node) ->
-    node.codeGen = @gen.genEmptyStatement
+    node.genCode = @gen.genEmptyStatement
 
   visitIfStatement: (node) ->
-    node.codeGen = @gen.genIfStatement
+    node.genCode = @gen.genIfStatement
 
   visitDoWhileStatement: (node) ->
-    node.codeGen = @gen.genDoWhileStatement
+    node.genCode = @gen.genDoWhileStatement
 
   visitWhileStatement: (node) ->
-    node.codeGen = @gen.genWhileStatement
+    node.genCode = @gen.genWhileStatement
 
   visitForStatement: (node) ->
-    node.codeGen = @gen.genForStatement
+    node.genCode = @gen.genForStatement
 
   visitContinueStatement: (node) ->
-    node.codeGen = @gen.genContinueStatement
+    node.genCode = @gen.genContinueStatement
 
   visitBreakStatement: (node) ->
-    node.codeGen = @gen.genBreakStatement
+    node.genCode = @gen.genBreakStatement
 
   visitReturnStatement: (node) ->
-    node.codeGen = @gen.genReturnStatement
+    node.genCode = @gen.genReturnStatement
 
   visitFunction_: (node) ->
-    node.codeGen = @gen.genFunction
+    node.genCode = @gen.genFunction
 
-  genProgram: (node) ->
-    node.codeGen = @gen.genProgram
+  visitProgram: (node) ->
+    node.genCode = @gen.genProgram

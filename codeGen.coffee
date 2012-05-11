@@ -117,6 +117,6 @@ symTable = require './symTable'
 
     genProgram: ->
       # Program: [element]
-      elem.genCode() for elem in this
+      elem.genCode() for elem in this.elements
 
   return gen

@@ -5,7 +5,7 @@
 @SYM_FUNC = 3
 
 # private function to count keys in an associative array
-_dictCount = (obj) -> Object.keys(obj).length()
+_dictCount = (obj) -> Object.keys(obj).length
 
 class ConstTable
   constructor: (name) ->

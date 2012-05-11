@@ -75,5 +75,6 @@ class @CodeObject
       # deal with operand
       # TODO provide extra info of operand
       if opname in ['LDCONST', 'LDLOCAL', 'LDGLOBAL', 'STLOCAL', 'STGLOBAL', 'CALL', 'JT', 'JF', 'JMP', 'DELLOCAL', 'DELGLOBAL']
-          printf '%d\n', ++i
+          printf '\t%d\n', ++i
       i++
+    printf '\n'

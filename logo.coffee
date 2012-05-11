@@ -5,15 +5,15 @@ codeObj = require './codeObj'
 codeGen = require './codeGen'
 symTab = require './symTable'
 
-throw new Error("no input file") if process.argv.length < 3
+throw new Error "no input file" if process.argv.length < 3
 fs.readFile process.argv[2], 'utf-8', (err, data) ->
-  console.error(err) if err
+  console.error err if err
 
-  parseTree = parser.parse(data)
+  parseTree = parser.parse data
   tabSet = new symTab.SymTabSet()
 
-  pass1 = new tree.FirstPassVisitor(tabSet)
-  pass1.dispatch parseTree
+  pass1 = new tree.FirstPassVisitor tabSet
+  parseTree.accept pass1
 
   console.log(require('util').inspect(parseTree, false, null))
 
@@ -22,12 +22,11 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
                                    tabSet.funcs,
                                    tabSet.locals)
   codeGenerator = codeGen.getGenerator codeObj
-
-  pass2 = new tree.SecondPassVisitor()
-  pass2.dispatch parseTree
+  pass2 = new tree.SecondPassVisitor(codeGenerator)
+  parseTree.accept pass2
 
   # generate code
-  parseTree.genCode(codeGenerator)
+  parseTree.genCode()
 
   # view byte code
   codeObj.dump()

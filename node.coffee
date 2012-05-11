@@ -1,32 +1,50 @@
-# This file contains AST node types and other info.
-# Get the constructor for comparing node type.
-@getType = (node) -> node.constructor
-
 # All total 24 AST node types
 # Node for numeric literals
-@NumericLiteral = (@value) ->
+class @NumericLiteral
+  constructor: (@value) ->
+  accept: (visitor) ->
+    visitor.visitNumericLiteral this
 
 # Node for string literals
-@StringLiteral = (@value) ->
+class @StringLiteral
+  constructor: (@value) ->
+  accept: (visitor) -> visitor.visitStringLiteral this
 
 # Node for null literals
-@NullLiteral = ->
+class @NullLiteral
+  accept: (visitor) -> visitor.visitNullLiteral this
 
 # Node for boolean literals
-@BooleanLiteral = (@value) ->
+class @BooleanLiteral
+  constructor: (@value) ->
+  accept: (visitor) -> visitor.visitBooleanLiteral this
 
 # Node for variables
-@Variable = (@name) ->
+class @Variable
+  constructor: (@name) ->
+  accept: (visitor) -> visitor.visitVariable this
 
 # Node for function calls
-@FunctionCall = (@name, args) ->
-  @arguments = args
+class @FunctionCall
+  constructor: (@name, args) -> @arguments = args
+  accept: (visitor) ->
+    @name.accept visitor
+    arg.accept visitor for arg in @arguments
+    visitor.visitFunctionCall this
 
 # Node for postfix expressions
-@PostfixExpression = (@operator, @expression) ->
+class @PostfixExpression
+  constructor: (@operator, @expression) ->
+  accept: (visitor) ->
+    @expression.accept visitor
+    visitor.visitPostfixExpression this
 
 # Node for unary expressions
-@UnaryExpressions = (@operator, @expression) ->
+class @UnaryExpression
+  constructor: (@operator, @expression) ->
+  accept: (visitor) ->
+    @expression.accept visitor
+    visitor.visitUnaryExpression this
 
 _binExpression = (ctx, op, l, r) ->
   ctx.operator = op
@@ -34,37 +52,103 @@ _binExpression = (ctx, op, l, r) ->
   ctx.right = r
   return
 
-@BinaryExpression = (op, l, r) ->
-  _binExpression this, op, l, r
+class @BinaryExpression
+  constructor: (op, l, r) -> _binExpression this, op, l, r
+  accept: (visitor) ->
+    @left.accept visitor
+    @right.accept visitor
+    visitor.visitBinaryExpression this
 
-@ConditionalExpression = (@condition, @trueExpression, @falseExpression) ->
+class @ConditionalExpression
+  constructor: (@condition, @trueExpression, @falseExpression) ->
+  accept: (visitor) ->
+    @condition.accept visitor
+    @trueExpression.accept visitor
+    @falseExpression.accept visitor
+    visitor.visitConditionalExpression this
 
-@AssignmentExpression = (op, l, r) ->
-  _binExpression this, op, l, r
+class @AssignmentExpression
+  constructor: (op, l, r) -> _binExpression this, op, l, r
+  accept: (visitor) ->
+    @left.accept visitor
+    @right.accept visitor
+    visitor.visitAssignmentExpression this
 
-@Block = (@statements) ->
+class @Block
+  constructor: (@statements) ->
+  accept: (visitor) ->
+    stmt.accept visitor for stmt in @statements
+    visitor.visitBlock this
 
-@VariableStatement = (@declarations) ->
+class @VariableStatement
+  constructor: (@declarations) ->
+  accept: (visitor) ->
+    decl.accept visitor for decl in @declarations
+    visitor.visitVariableStatement this
 
-@VariableDeclaration = (@name, @value) ->
+class @VariableDeclaration
+  constructor: (@name, @value) ->
+  accept: (visitor) ->
+    @value.accept visitor
+    visitor.visitVariableDeclaration this
 
-@EmptyStatement = ->
+class @EmptyStatement
+  accept: (visitor) -> visitor.visitEmptyStatement this
 
-@IfStatement = (@condition, @ifStatement, @elseStatement) ->
+class @IfStatement
+  constructor: (@condition, @ifStatement, @elseStatement) ->
+  accept: (visitor) ->
+    @condition.accept visitor
+    @ifStatement.accept visitor
+    @elseStatement.accept visitor
+    visitor.visitIfStatement this
 
-@DoWhileStatement = (@condition, @statement) ->
+class @DoWhileStatement
+  constructor: (@condition, @statement) ->
+  accept: (visitor) ->
+    @condition.accept visitor
+    @statement.accept visitor
+    visitor.visitDoWhileStatement this
 
-@WhileStatement = (@condition, @statement) ->
+class @WhileStatement
+  constructor: (@condition, @statement) ->
+  accept: (visitor) ->
+    @condition.accept visitor
+    @statement.accept visitor
+    visitor.visitWhileStatement this
 
-@ForStatement = (@initializer, @test, @counter, @statement) ->
+class @ForStatement
+  constructor: (@initializer, @test, @counter, @statement) ->
+  accept: (visitor) ->
+    @initializer.accept visitor
+    @test.accept visitor
+    @counter.accept visitor
+    @statements.accept visitor
+    visitor.visitForStatement this
 
-@ContinueStatement = ->
+class @ContinueStatement
+  accept: (visitor) -> visitor.visitContinueStatement this
 
-@BreakStatement = ->
+class @BreakStatement
+  accept: (visitor) -> visitor.visitBreakStatement this
 
-@ReturnStatement = (@value) ->
+class @ReturnStatement
+  constructor: (@value) ->
+  accept: (visitor) ->
+    @value.accept visitor
+    visitor.visitReturnStatement this
 
-@Function_ = (@name, @params, @elements) ->
+class @Function_
+  constructor: (@name, @params, @elements) ->
+  accept: (visitor) ->
+    visitor.enter 'Function_', this
+    param.accept visitor for param in @params
+    @elements.accept visitor
+    visitor.visitFunction_ this
 
-@Program = (@elements) ->
+class @Program
+  constructor: (@elements) ->
+  accept: (visitor) ->
+    elem.accept visitor for elem in @elements
+    visitor.visitProgram this
 
