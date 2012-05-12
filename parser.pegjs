@@ -291,7 +291,7 @@ ArgumentList
   }
 
 LeftHandSideExpression
-  = Identifier
+  = name:Identifier { return new node.Variable(name); }
 
 PostfixExpression
   = expression:LeftHandSideExpression _ operator:PostfixOperator {
@@ -480,7 +480,7 @@ AssignmentExpression
   = left:LeftHandSideExpression __
     operator:AssignmentOperator __
     right:AssignmentExpression {
-      return AssignmentExpression(operator, left, right);
+      return new node.AssignmentExpression(operator, left, right);
     }
   / ConditionalExpression
 

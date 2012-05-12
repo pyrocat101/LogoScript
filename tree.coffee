@@ -128,10 +128,10 @@ class @SecondPassVisitor extends BaseASTVisitor
     node.genCode = @gen.genLiteral
 
   visitNullLiteral: (node) ->
-    node.genCode = @gen.genVariable
+    node.genCode = @gen.genLiteral
 
   visitBooleanLiteral: (node) ->
-    node.genCode = @gen.genVariable
+    node.genCode = @gen.genLiteral
 
   visitFunctionCall: (node) ->
     node.genCode = @gen.genFunctionCall
@@ -158,7 +158,7 @@ class @SecondPassVisitor extends BaseASTVisitor
     node.genCode = @gen.genVariableStatement
 
   visitVariableDeclaration: (node) ->
-    node.codeGne = @gen.genVariableDeclaration
+    node.genCode = @gen.genVariableDeclaration
 
   visitEmptyStatement: (node) ->
     node.genCode = @gen.genEmptyStatement

@@ -1,0 +1,37 @@
+y = 0;
+
+if (y == 1) {
+  x = 1;
+}
+
+if (y == x) {
+  x = 1;
+} else {
+  x = 2;
+}
+
+x = 0;
+do {
+  x++;
+  break;
+  continue;
+} while (x < 10);
+
+x = 0;
+while (x < 10) {
+  x++;
+  break;
+  continue;
+}
+
+for (i = 0, s = 0; i < 10; i++) {
+  s += i;
+  break;
+  continue;
+}
+
+for (;;i++) {
+  s += i;
+}
+
+s = x == y ? true : false;

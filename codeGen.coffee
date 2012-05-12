@@ -1,6 +1,15 @@
 op = require './opcodes'
 symTable = require './symTable'
 
+_genStore = (codeObj) ->
+  switch @symInfo.flag
+    when symTable.SYM_LOCAL
+      codeObj.emit op.STLOCAL, @symInfo.number
+    when symTable.SYM_GLOBAL
+      codeObj.emit op.STGLOBAL, @symInfo.number
+    else
+      throw new Error "Invalid symbol: #{@name}"
+
 @getGenerator = (codeObj) ->
   # In the following code generation functions, 
   # the 'this' object is the current node context.
@@ -8,49 +17,41 @@ symTable = require './symTable'
   # code upon.
   gen =
     genVariable: ->
-      switch this.symInfo.flag
+      switch @symInfo.flag
         when symTable.SYM_LOCAL
-          codeObj.emit op.LDLOCAL, this.symInfo.number
+          codeObj.emit op.LDLOCAL, @symInfo.number
         when symTable.SYM_GLOBAL
-          codeObj.emit op.LDGLOBAL, this.symInfo.number
-        else
-          throw new Error "Invalid symbol: #{@name}"
-
-    _genStore: ->
-      switch this.symInfo.flag
-        when symTable.SYM_LOCAL
-          codeObj.emit op.STLOCAL, this.symInfo.number
-        when symTable.SYM_GLOBAL
-          codeObj.emit op.STGLOBAL, this.symInfo.number
+          codeObj.emit op.LDGLOBAL, @symInfo.number
         else
           throw new Error "Invalid symbol: #{@name}"
 
     genLiteral: ->
-      codeObj.emit op.LDCONST, this.constNum
+      codeObj.emit op.LDCONST, @constNum
 
     genFunctionCall: ->
       # TODO gen code for function call
 
     genPostfixExpression: ->
-      this.expression.genCode()
+      @expression.genCode()
       codeObj.emit op.DUP
-      switch this.operator
+      switch @operator
         when '++' then codeObj.emit op.INC
         when '--' then codeObj.emit op.DEC
-      _genStore.call this.expression
+      _genStore.call @expression, codeObj
+      codeObj.emit op.POP
 
     genUnaryExpression: ->
-      this.expression.genCode()
-      if this.operator == 'delete' and this.expression.symInfo?
-        switch this.symInfo.flag
+      @expression.genCode()
+      if @operator == 'delete' and @expression.symInfo?
+        switch @symInfo.flag
           when symTable.SYM_LOCAL
-            codeObj.emit op.DELLOCAL, this.symInfo.number
+            codeObj.emit op.DELLOCAL, @symInfo.number
           when symTable.SYM_GLOBAL
-            codeObj.emit op.DELGLOBAL, this.symInfo.number
+            codeObj.emit op.DELGLOBAL, @symInfo.number
           else
             throw new Error "Invalid symbol: #{@name}"
       else
-        switch this.operator
+        switch @operator
           when '++' then codeObj.emit op.INC
           when '--' then codeObj.emit op.DEC
           when '+' then codeObj.emit op.POS
@@ -60,9 +61,9 @@ symTable = require './symTable'
           when 'typeof' then codeObj.emit op.TYPEOF
 
     genBinaryExpression: ->
-      this.left.genCode()
-      this.right.genCode()
-      switch this.operator
+      @left.genCode()
+      @right.genCode()
+      switch @operator
         when '*' then codeObj.emit op.MUL
         when '/' then codeObj.emit op.DIV
         when '%' then codeObj.emit op.MOD
@@ -85,11 +86,24 @@ symTable = require './symTable'
         when ',' then codeObj.emit op.ROT, op.POP
 
     genConditionalExpression: ->
+      @condition.genCode()
+      codeObj.emit op.JF
+      slot1 = codeObj.reserveSlot()
+      @trueExpression.genCode()
+      #codeObj.emit op.POP if @ifStatement.leaveResult? 
+
+      codeObj.emit op.JMP
+      slot2 = codeObj.reserveSlot()
+      codeObj.patchSlot slot1, codeObj.peekLabel()
+
+      @falseExpression.genCode()
+      #codeObj.emit op.POP if @elseStatement.leaveResult?
+      codeObj.patchSlot slot2, codeObj.peekLabel()
 
     genAssignmentExpression: ->
-      this.left.genCode()
-      this.right.genCode()
-      switch this.operator
+      @left.genCode()
+      @right.genCode()
+      switch @operator
         when '*=' then codeObj.emit op.MUL
         when '/=' then codeObj.emit op.DIV
         when '%=' then codeObj.emit op.MOD
@@ -101,26 +115,27 @@ symTable = require './symTable'
         when '&=' then codeObj.emit op.BAND
         when '^=' then codeObj.emit op.BXOR
         when '|=' then codeObj.emit op.BOR
-      _genStore.call this.left
+      _genStore.call @left, codeObj
 
     genBlock: ->
       # Block: [statement]
-      for stmt in this.statements
+      for stmt in @statements
         stmt.genCode()
         codeObj.emit op.POP if stmt.leaveResult?
 
     genVariableStatement: ->
-      for decl in this.declarations
+      for decl in @declarations.splice 0, @declarations.length - 1
         decl.genCode()
         codeObj.emit op.POP
+      @declarations[@declarations.length - 1].genCode()
 
     genVariableDeclaration: ->
-      this.value.genCode()
-      switch this.symInfo.flag
+      @value.genCode()
+      switch @symInfo.flag
         when symTable.SYM_LOCAL
-          codeObj.emit op.STLOCAL, this.symInfo.number
+          codeObj.emit op.STLOCAL, @symInfo.number
         when symTable.SYM_GLOBAL
-          codeObj.emit op.STGLOBAL, this.symInfo.number
+          codeObj.emit op.STGLOBAL, @symInfo.number
         else
           throw new Error "Invalid symbol: #{@name}"
 
@@ -167,8 +182,11 @@ symTable = require './symTable'
       label1 = codeObj.peekLabel()
       @statement.genCode()
       codeObj.emit op.POP if @statement.leaveResult?
+
       label2 = codeObj.peekLabel()
+      @condition.genCode()
       codeObj.emit op.JT, label1
+
       label3 = codeObj.peekLabel()
 
       # patch continue and break
@@ -181,6 +199,7 @@ symTable = require './symTable'
       codeObj.scopes.pushScope()
       
       label1 = codeObj.peekLabel()
+      @condition.genCode()
       codeObj.emit op.JF
       slot2 = codeObj.reserveSlot()
 
@@ -203,7 +222,7 @@ symTable = require './symTable'
       if @initializer?
         @initializer.genCode()
         codeObj.emit op.POP if @initializer.leaveResult?
-      label1 = codeObj.reserveSlot()
+      label1 = codeObj.peekLabel()
 
       if @test?
         @test.genCode()
@@ -223,8 +242,8 @@ symTable = require './symTable'
 
       # back patch
       codeObj.patchSlot slot3, label3 if @test?
-      codeObj.patchContinue label2
-      codeObj.patchBreak label3
+      codeObj.scopes.patchContinue label2
+      codeObj.scopes.patchBreak label3
 
       codeObj.scopes.popScope()
 
@@ -243,7 +262,7 @@ symTable = require './symTable'
 
     genProgram: ->
       # Program: [element]
-      for elem in this.elements
+      for elem in @elements
         elem.genCode()
         codeObj.emit op.POP if elem.leaveResult?
 

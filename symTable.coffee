@@ -1,8 +1,12 @@
 # export symbol flags
-@SYM_NONE = 0
-@SYM_LOCAL = 1
-@SYM_GLOBAL = 2
-@SYM_FUNC = 3
+SYM_NONE = 0
+SYM_LOCAL = 1
+SYM_GLOBAL = 2
+SYM_FUNC = 3
+@SYM_NONE = SYM_NONE
+@SYM_LOCAL = SYM_LOCAL
+@SYM_GLOBAL = SYM_GLOBAL
+@SYM_FUNC = SYM_FUNC
 
 # private function to count keys in an associative array
 _dictCount = (obj) -> Object.keys(obj).length
@@ -14,7 +18,12 @@ class ConstTable
 
   contains: (obj) -> obj of @_set
 
-  put: (obj) -> @_set[obj] = _dictCount(@_set)
+  #put: (obj) -> @_set[obj] = _dictCount(@_set) if obj not in @_set
+  put: (obj) -> 
+    if obj not of @_set
+      @_set[obj] = _dictCount @_set
+    else
+      @_set[obj]
 
   count: -> _dictCount(@_set)
 

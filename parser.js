@@ -103,6 +103,7 @@ module.exports = (function(){
         "CallExpression": parse_CallExpression,
         "Arguments": parse_Arguments,
         "ArgumentList": parse_ArgumentList,
+        "LeftHandSideExpression": parse_LeftHandSideExpression,
         "PostfixExpression": parse_PostfixExpression,
         "PostfixOperator": parse_PostfixOperator,
         "UnaryExpression": parse_UnaryExpression,
@@ -3188,13 +3189,28 @@ module.exports = (function(){
         return result0;
       }
       
+      function parse_LeftHandSideExpression() {
+        var result0;
+        var pos0;
+        
+        pos0 = pos;
+        result0 = parse_Identifier();
+        if (result0 !== null) {
+          result0 = (function(offset, name) { return new node.Variable(name); })(pos0, result0);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
+        return result0;
+      }
+      
       function parse_PostfixExpression() {
         var result0, result1, result2;
         var pos0, pos1;
         
         pos0 = pos;
         pos1 = pos;
-        result0 = parse_Identifier();
+        result0 = parse_LeftHandSideExpression();
         if (result0 !== null) {
           result1 = parse__();
           if (result1 !== null) {
@@ -4976,7 +4992,7 @@ module.exports = (function(){
         
         pos0 = pos;
         pos1 = pos;
-        result0 = parse_Identifier();
+        result0 = parse_LeftHandSideExpression();
         if (result0 !== null) {
           result1 = parse___();
           if (result1 !== null) {
@@ -5009,7 +5025,7 @@ module.exports = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset, left, operator, right) {
-              return AssignmentExpression(operator, left, right);
+              return new node.AssignmentExpression(operator, left, right);
             })(pos0, result0[0], result0[2], result0[4]);
         }
         if (result0 === null) {

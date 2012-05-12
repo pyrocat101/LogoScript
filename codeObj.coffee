@@ -1,11 +1,13 @@
 op = require './opcodes'
-util = require 'util'
+utils = require './utils'
 
 class Scope
-  constructor: (@codeObj) -> @continueSlots = @breakSlots = []
+  constructor: ->
+    @continueSlots = []
+    @breakSlots = []
 
 class ScopeChain
-  constructor: -> @_chain = []
+  constructor: (@codeObj) -> @_chain = []
 
   pushScope: -> @_chain.push new Scope
   
@@ -14,13 +16,13 @@ class ScopeChain
   patchContinue: (label) ->
     throw new Error 'No scope in chain' if @_chain.length < 1
     top = @_chain[@_chain.length - 1]
-    top.continueSlots.forEach (slot) ->
+    top.continueSlots.forEach (slot) =>
       @codeObj.currentCode[slot] = label
 
   patchBreak: (label) ->
     throw new Error 'No scope in chain' if @_chain.length < 1
     top = @_chain[@_chain.length - 1]
-    top.breakSlots.forEach (slot) ->
+    top.breakSlots.forEach (slot) =>
       @codeObj.currentCode[slot] = label
 
   addBreakSlot: (slot) ->
@@ -34,7 +36,7 @@ class ScopeChain
 # This is the generated code object of our script.
 class @CodeObject
   constructor: (consts, globals, funcs, locals) ->
-    @scopes = new ScopeChain
+    @scopes = new ScopeChain(this)
     @code = []
     @_initFuncCodes funcs.count
     # current generate context is @code
@@ -55,7 +57,7 @@ class @CodeObject
     consts.forEach (obj, nr) ->
       _array.push [obj, nr]
     _array.sort (x, y) -> x[1] - y[1]
-    @constNames = x[0] for x in _array
+    @constNames = (x[0] for x in _array)
 
   # process global variables
   _initGlobalNames: (globals) ->
@@ -63,7 +65,7 @@ class @CodeObject
     globals.forEach (name, ste) ->
       _array.push [name, ste.number]
     _array.sort (x, y) -> x[1] - y[1]
-    @globalNames = x[0] for x in _array
+    @globalNames = (x[0] for x in _array)
 
   # process functions
   _initFuncNames: (funcs) ->
@@ -71,7 +73,7 @@ class @CodeObject
     funcs.forEach (name, ste) ->
       _array.push [name, ste.number]
     _array.sort (x, y) -> x[1] - y[1]
-    @funcNames = x[0] for x in _array
+    @funcNames = (x[0] for x in _array)
 
   # process local names
   _initLocalNames: (locals) ->
@@ -85,30 +87,28 @@ class @CodeObject
       _array.clear()
 
   # generate code into current code context
-  emit: (bytecode...) ->
-    @currentCode.push(x) for x in bytecode
+  emit: (bytecode...) -> @currentCode.push x for x in bytecode
 
   _getOpName: (opcode) ->
     for name, num of op
       if opcode == num
         return name
-    throw new Error "Invalid opcode #{opcode}"
+    #throw new Error "Invalid opcode #{opcode}"
 
   dump: ->
     # TODO dump functions
     i = 0
     len = @code.length
-    printf = (args...) ->
-      process.stdout.write(util.format.apply(null, args))
     while i < len
       opname = @_getOpName @code[i]
-      printf '%d\t%s', i, opname
+      utils.printf('%-4d%-10s', i, opname)
       # deal with operand
       # TODO provide extra info of operand
       if opname in ['LDCONST', 'LDLOCAL', 'LDGLOBAL', 'STLOCAL', 'STGLOBAL', 'CALL', 'JT', 'JF', 'JMP', 'DELLOCAL', 'DELGLOBAL']
-          printf '\t%d\n', ++i
+        utils.printf('%d\n', @code[++i])
+      else
+        utils.printf('\n')
       i++
-    printf '\n'
 
   reserveSlot: ->
     ret = @currentCode.length

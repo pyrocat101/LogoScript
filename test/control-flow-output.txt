@@ -1,0 +1,100 @@
+Output of control flow test:
+0   LDCONST   0
+2   STGLOBAL  0
+4   POP       
+5   LDGLOBAL  0
+7   LDCONST   1
+9   EQ        
+10  JF        17
+12  LDCONST   1
+14  STGLOBAL  1
+16  POP       
+17  LDGLOBAL  0
+19  LDGLOBAL  1
+21  EQ        
+22  JF        31
+24  LDCONST   1
+26  STGLOBAL  1
+28  POP       
+29  JMP       36
+31  LDCONST   2
+33  STGLOBAL  1
+35  POP       
+36  LDCONST   0
+38  STGLOBAL  1
+40  POP       
+41  LDGLOBAL  1
+43  DUP       
+44  INC       
+45  STGLOBAL  1
+47  POP       
+48  POP       
+49  JMP       60
+51  JMP       53
+53  LDGLOBAL  1
+55  LDCONST   3
+57  LT        
+58  JT        41
+60  LDCONST   0
+62  STGLOBAL  1
+64  POP       
+65  LDGLOBAL  1
+67  LDCONST   3
+69  LT        
+70  JF        86
+72  LDGLOBAL  1
+74  DUP       
+75  INC       
+76  STGLOBAL  1
+78  POP       
+79  POP       
+80  JMP       86
+82  JMP       65
+84  JMP       65
+86  LDCONST   0
+88  STGLOBAL  2
+90  POP       
+91  LDCONST   0
+93  STGLOBAL  3
+95  POP       
+96  LDGLOBAL  2
+98  LDCONST   3
+100 LT        
+101 JF        125
+103 LDGLOBAL  3
+105 LDGLOBAL  2
+107 ADD       
+108 STGLOBAL  3
+110 POP       
+111 JMP       125
+113 JMP       115
+115 LDGLOBAL  2
+117 DUP       
+118 INC       
+119 STGLOBAL  2
+121 POP       
+122 POP       
+123 JMP       96
+125 LDGLOBAL  3
+127 LDGLOBAL  2
+129 ADD       
+130 STGLOBAL  3
+132 POP       
+133 LDGLOBAL  2
+135 DUP       
+136 INC       
+137 STGLOBAL  2
+139 POP       
+140 POP       
+141 JMP       125
+143 LDGLOBAL  1
+145 LDGLOBAL  0
+147 EQ        
+148 JF        154
+150 LDCONST   4
+152 JMP       156
+154 LDCONST   5
+156 STGLOBAL  3
+158 POP       
+Constant Names: [ '0', '1', '2', '10', 'true', 'false' ]
+Global Names: [ 'y', 'x', 'i', 's' ]

@@ -30,3 +30,6 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
 
   # view byte code
   codeObj.dump()
+
+  console.log codeObj.constNames
+  console.log codeObj.globalNames
