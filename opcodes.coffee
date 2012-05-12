@@ -8,8 +8,8 @@
 @STGLOBAL = 7 # store global var
 @CALL = 8 # call function
 @RET = 9  # return from function with TOS
-@JT = 10  # jump if TOS is true
-@JF = 11  # jump if TOS is false
+@JT = 10  # jump if TOS is true, pop TOS
+@JF = 11  # jump if TOS is false, pop TOS
 @JMP = 12 # unconditional jump
 @ADD = 13
 @SUB = 14
