@@ -94,8 +94,6 @@ module.exports = (function(){
         "TrueToken": parse_TrueToken,
         "TypeofToken": parse_TypeofToken,
         "WhileToken": parse_WhileToken,
-        "ToToken": parse_ToToken,
-        "StepToken": parse_StepToken,
         "EOS": parse_EOS,
         "EOSNoLineTerminator": parse_EOSNoLineTerminator,
         "EOF": parse_EOF,
@@ -945,28 +943,6 @@ module.exports = (function(){
                                 result0 = null;
                                 if (reportFailures === 0) {
                                   matchFailed("\"while\"");
-                                }
-                              }
-                              if (result0 === null) {
-                                if (input.substr(pos, 2) === "to") {
-                                  result0 = "to";
-                                  pos += 2;
-                                } else {
-                                  result0 = null;
-                                  if (reportFailures === 0) {
-                                    matchFailed("\"to\"");
-                                  }
-                                }
-                                if (result0 === null) {
-                                  if (input.substr(pos, 4) === "step") {
-                                    result0 = "step";
-                                    pos += 4;
-                                  } else {
-                                    result0 = null;
-                                    if (reportFailures === 0) {
-                                      matchFailed("\"step\"");
-                                    }
-                                  }
                                 }
                               }
                             }
@@ -2670,82 +2646,6 @@ module.exports = (function(){
         return result0;
       }
       
-      function parse_ToToken() {
-        var result0, result1;
-        var pos0, pos1;
-        
-        pos0 = pos;
-        if (input.substr(pos, 2) === "to") {
-          result0 = "to";
-          pos += 2;
-        } else {
-          result0 = null;
-          if (reportFailures === 0) {
-            matchFailed("\"to\"");
-          }
-        }
-        if (result0 !== null) {
-          pos1 = pos;
-          reportFailures++;
-          result1 = parse_IdentifierPart();
-          reportFailures--;
-          if (result1 === null) {
-            result1 = "";
-          } else {
-            result1 = null;
-            pos = pos1;
-          }
-          if (result1 !== null) {
-            result0 = [result0, result1];
-          } else {
-            result0 = null;
-            pos = pos0;
-          }
-        } else {
-          result0 = null;
-          pos = pos0;
-        }
-        return result0;
-      }
-      
-      function parse_StepToken() {
-        var result0, result1;
-        var pos0, pos1;
-        
-        pos0 = pos;
-        if (input.substr(pos, 4) === "step") {
-          result0 = "step";
-          pos += 4;
-        } else {
-          result0 = null;
-          if (reportFailures === 0) {
-            matchFailed("\"step\"");
-          }
-        }
-        if (result0 !== null) {
-          pos1 = pos;
-          reportFailures++;
-          result1 = parse_IdentifierPart();
-          reportFailures--;
-          if (result1 === null) {
-            result1 = "";
-          } else {
-            result1 = null;
-            pos = pos1;
-          }
-          if (result1 !== null) {
-            result0 = [result0, result1];
-          } else {
-            result0 = null;
-            pos = pos0;
-          }
-        } else {
-          result0 = null;
-          pos = pos0;
-        }
-        return result0;
-      }
-      
       function parse_EOS() {
         var result0, result1;
         var pos0, pos1;
@@ -3294,7 +3194,7 @@ module.exports = (function(){
         
         pos0 = pos;
         pos1 = pos;
-        result0 = parse_PrimaryExpression();
+        result0 = parse_Identifier();
         if (result0 !== null) {
           result1 = parse__();
           if (result1 !== null) {
@@ -3400,63 +3300,66 @@ module.exports = (function(){
         
         result0 = parse_DeleteToken();
         if (result0 === null) {
-          if (input.substr(pos, 2) === "++") {
-            result0 = "++";
-            pos += 2;
-          } else {
-            result0 = null;
-            if (reportFailures === 0) {
-              matchFailed("\"++\"");
-            }
-          }
+          result0 = parse_TypeofToken();
           if (result0 === null) {
-            if (input.substr(pos, 2) === "--") {
-              result0 = "--";
+            if (input.substr(pos, 2) === "++") {
+              result0 = "++";
               pos += 2;
             } else {
               result0 = null;
               if (reportFailures === 0) {
-                matchFailed("\"--\"");
+                matchFailed("\"++\"");
               }
             }
             if (result0 === null) {
-              if (input.charCodeAt(pos) === 43) {
-                result0 = "+";
-                pos++;
+              if (input.substr(pos, 2) === "--") {
+                result0 = "--";
+                pos += 2;
               } else {
                 result0 = null;
                 if (reportFailures === 0) {
-                  matchFailed("\"+\"");
+                  matchFailed("\"--\"");
                 }
               }
               if (result0 === null) {
-                if (input.charCodeAt(pos) === 45) {
-                  result0 = "-";
+                if (input.charCodeAt(pos) === 43) {
+                  result0 = "+";
                   pos++;
                 } else {
                   result0 = null;
                   if (reportFailures === 0) {
-                    matchFailed("\"-\"");
+                    matchFailed("\"+\"");
                   }
                 }
                 if (result0 === null) {
-                  if (input.charCodeAt(pos) === 126) {
-                    result0 = "~";
+                  if (input.charCodeAt(pos) === 45) {
+                    result0 = "-";
                     pos++;
                   } else {
                     result0 = null;
                     if (reportFailures === 0) {
-                      matchFailed("\"~\"");
+                      matchFailed("\"-\"");
                     }
                   }
                   if (result0 === null) {
-                    if (input.charCodeAt(pos) === 33) {
-                      result0 = "!";
+                    if (input.charCodeAt(pos) === 126) {
+                      result0 = "~";
                       pos++;
                     } else {
                       result0 = null;
                       if (reportFailures === 0) {
-                        matchFailed("\"!\"");
+                        matchFailed("\"~\"");
+                      }
+                    }
+                    if (result0 === null) {
+                      if (input.charCodeAt(pos) === 33) {
+                        result0 = "!";
+                        pos++;
+                      } else {
+                        result0 = null;
+                        if (reportFailures === 0) {
+                          matchFailed("\"!\"");
+                        }
                       }
                     }
                   }
@@ -5073,7 +4976,7 @@ module.exports = (function(){
         
         pos0 = pos;
         pos1 = pos;
-        result0 = parse_PrimaryExpression();
+        result0 = parse_Identifier();
         if (result0 !== null) {
           result1 = parse___();
           if (result1 !== null) {

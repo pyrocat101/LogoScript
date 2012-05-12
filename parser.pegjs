@@ -84,8 +84,6 @@ Keyword
       / "return"
       / "typeof"
       / "while"
-      / "to"
-      / "step"
     )
     !IdentifierPart
 
@@ -231,8 +229,6 @@ ReturnToken     = "return"           !IdentifierPart
 TrueToken       = "true"             !IdentifierPart
 TypeofToken     = "typeof"           !IdentifierPart { return "typeof"; }
 WhileToken      = "while"            !IdentifierPart
-ToToken         = "to"               !IdentifierPart
-StepToken       = "step"             !IdentifierPart
 
 
 /* Automatic Semicolon Insertion */
@@ -295,7 +291,7 @@ ArgumentList
   }
 
 LeftHandSideExpression
-  = PrimaryExpression
+  = Identifier
 
 PostfixExpression
   = expression:LeftHandSideExpression _ operator:PostfixOperator {
@@ -316,12 +312,13 @@ UnaryExpression
 
 UnaryOperator
   = DeleteToken
+  / TypeofToken
   / "++"
   / "--"
   / "+"
   / "-"
   / "~"
-  /  "!"
+  / "!"
 
 MultiplicativeExpression
   = head:UnaryExpression

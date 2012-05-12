@@ -1,9 +1,40 @@
 op = require './opcodes'
 util = require 'util'
 
+class Scope
+  constructor: (@codeObj) -> @continueSlots = @breakSlots = []
+
+class ScopeChain
+  constructor: -> @_chain = []
+
+  pushScope: -> @_chain.push new Scope
+  
+  popScope: -> @_chain.pop()
+
+  patchContinue: (label) ->
+    throw new Error 'No scope in chain' if @_chain.length < 1
+    top = @_chain[@_chain.length - 1]
+    top.continueSlots.forEach (slot) ->
+      @codeObj.currentCode[slot] = label
+
+  patchBreak: (label) ->
+    throw new Error 'No scope in chain' if @_chain.length < 1
+    top = @_chain[@_chain.length - 1]
+    top.breakSlots.forEach (slot) ->
+      @codeObj.currentCode[slot] = label
+
+  addBreakSlot: (slot) ->
+    top = @_chain[@_chain.length - 1]
+    top.breakSlots.push slot
+
+  addContinueSlot: (slot) ->
+    top = @_chain[@_chain.length - 1]
+    top.continueSlots.push slot
+
 # This is the generated code object of our script.
 class @CodeObject
   constructor: (consts, globals, funcs, locals) ->
+    @scopes = new ScopeChain
     @code = []
     @_initFuncCodes funcs.count
     # current generate context is @code
@@ -78,3 +109,16 @@ class @CodeObject
           printf '\t%d\n', ++i
       i++
     printf '\n'
+
+  reserveSlot: ->
+    ret = @currentCode.length
+    @emit 0
+    ret
+
+  genSlot: -> @currentCode.length - 1
+
+  patchSlot: (slot, label) -> @currentCode[slot] = label
+
+  genLabel: -> @genSlot()
+
+  peekLabel: -> @genSlot() + 1

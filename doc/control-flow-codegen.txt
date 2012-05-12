@@ -80,6 +80,16 @@ label2:	counter (pop)
 	JMP label1
 label3:	...
 }}}
+In case that there are no 'test' part, the code is:
+{{{
+	init (pop)
+label1:	exp (pop)
+	JMP label3 (this is break!)
+	JMP label2 (this is continue!)
+label2: counter (pop)
+	JMP label1
+label3: ...
+}}}
 
 Data Structure & Interface
 ==========================
@@ -110,7 +120,7 @@ ScopeChain.prototype.patchContinue = function (label) {
 		this.codeObj.currentCode[slot] = label;
 	}
 }
-ScopeChain.prototype.patchContinue = function (label) {
+ScopeChain.prototype.patchBreak = function (label) {
 	if (this._chain.length < 1) {
 		throw new Error('No scope in chain')
 	}	

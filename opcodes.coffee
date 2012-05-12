@@ -22,21 +22,23 @@
 @DEC = 21  # --TOS
 @POS = 22 # +TOS
 @NEG = 23 # -TOS
-@LSHIFT = 22  # left shift
-@URSHIFT = 23 # unsigned right shift
-@RSHIFT = 24 # logical right shift
-@LTE = 25 # <=
-@GTE = 26 # >=
-@LT = 27  # <
-@GT = 28  # >
-@EQ = 29  # ==
-@NEQ = 30 # !=
-@NOT = 31 # !
-@BNEG = 32  # ~
-@BAND = 33  # &
-@BXOR = 34  # ^
-@BOR = 35 # |
-@AND = 36 # &&
-@OR = 37  # ||
-@COND = 38 # TOS ? TOS1 : TOS2
-@ROT = 39 # swap TOS and TOS1
+@LSHIFT = 24  # left shift
+@URSHIFT = 25 # unsigned right shift
+@RSHIFT = 26 # logical right shift
+@LTE = 27 # <=
+@GTE = 28 # >=
+@LT = 29  # <
+@GT = 30  # >
+@EQ = 31  # ==
+@NEQ = 32 # !=
+@NOT = 33 # !
+@BNEG = 34  # ~
+@BAND = 35  # &
+@BXOR = 36  # ^
+@BOR = 37 # |
+@AND = 38 # &&
+@OR = 39  # ||
+@COND = 40 # TOS ? TOS1 : TOS2
+@ROT = 41 # swap TOS and TOS1
+@DUP = 42 # duplicate TOS
+@TYPEOF = 43 # typeof TOS
