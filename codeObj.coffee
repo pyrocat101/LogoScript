@@ -33,24 +33,57 @@ class ScopeChain
     top = @_chain[@_chain.length - 1]
     top.continueSlots.push slot
 
+class LogoFunction
+  constructor: (@name, @argc) ->
+  invoke: (args...) ->
+    if args.length isnt @argc
+      throw new Error "#{name}() takes exactly #{@argc} arguments (#{argc.length} given)"
+
+class @BuiltinFunction extends LogoFunction
+  constructor: (name, argc, @func) -> super name, argc
+  # It is invoked by VM
+  invoke: (args...) ->
+    super.apply this, args
+    # We should bind context of @func in advance
+    return @func.apply null, args
+
+class UserFunction extends LogoFunction
+  constructor: (name, argc) ->
+    super name, argc
+    @code = []
+  # When invoked by VM, it should pass bytecode back to VM.
+  # We should also bind 'visitor' in advance.
+  invoke: (visitor, args...) ->
+    super.apply this. args
+    visitor @code, args
+
 # This is the generated code object of our script.
 class @CodeObject
   constructor: (consts, globals, funcs, locals) ->
-    @scopes = new ScopeChain(this)
+    # TODO builtin functions
+    @scopes = new ScopeChain this
     @code = []
-    @_initFuncCodes funcs.count
     # current generate context is @code
-    @currentCode = @code
+    @_currentCode = @code
     # init names
     @_initConsts consts
     @_initGlobalNames globals
-    @_initFuncNames funcs
+    @_initFuncInfos funcs
+    @_initFunctions()
     @_initLocalNames locals
 
-  # init func codes
-  _initFuncCodes: (count) ->
-    @funcs = [] for x in count
-   
+  _initFunctions: -> @functions = []
+
+  startFuncCode: (funcNum) ->
+    func = @funcInfos[funcNum]
+    @functions[funcNum] = new UserFunction func.name, func.argc
+    @_currentCode = @functions[funcNum].code
+
+  endFuncCode: (funcNum) -> @_currentCode = @code
+
+  addBuiltinFuncs: (builtins) ->
+    @functions[i] = builtins[i] for [0...builtins.length]
+
   # process constant table
   _initConsts: (consts) ->
     _array = []
@@ -68,12 +101,12 @@ class @CodeObject
     @globalNames = (x[0] for x in _array)
 
   # process functions
-  _initFuncNames: (funcs) ->
+  _initFuncInfos: (funcs) ->
     _array = []
     funcs.forEach (name, ste) ->
       _array.push [name, ste.number]
     _array.sort (x, y) -> x[1] - y[1]
-    @funcNames = (x[0] for x in _array)
+    @funcInfos = (name: x[0], argc: x[1] for x in _array)
 
   # process local names
   _initLocalNames: (locals) ->
@@ -83,11 +116,11 @@ class @CodeObject
       v.forEach (name, ste) ->
         _array.push [name, ste.number]
       _array.sort (x, y) -> x[1] - y[1]
-      @localNames[k] = x[0] for x in _array
+      @localNames[k] = (x[0] for x in _array)
       _array.clear()
 
   # generate code into current code context
-  emit: (bytecode...) -> @currentCode.push x for x in bytecode
+  emit: (bytecode...) -> @_currentCode.push x for x in bytecode
 
   _getOpName: (opcode) ->
     for name, num of op
@@ -111,13 +144,13 @@ class @CodeObject
       i++
 
   reserveSlot: ->
-    ret = @currentCode.length
+    ret = @_currentCode.length
     @emit 0
     ret
 
-  genSlot: -> @currentCode.length - 1
+  genSlot: -> @_currentCode.length - 1
 
-  patchSlot: (slot, label) -> @currentCode[slot] = label
+  patchSlot: (slot, label) -> @_currentCode[slot] = label
 
   genLabel: -> @genSlot()
 

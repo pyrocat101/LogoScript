@@ -55,6 +55,9 @@ class BaseASTVisitor
 
   visitProgram: (node) ->
 
+  # This function is not intended to be called in 'accept'
+  visitParameters: (array) ->
+
   enter: (nodeName, node) ->
     @['enter' + nodeName]?(node)
 
@@ -68,7 +71,7 @@ class @FirstPassVisitor extends BaseASTVisitor
     # FIXME check for redefine
     @tabSet.addLocal node.name
     # create symbol
-    @tabSet.funcs.add node.name
+    @tabSet.funcs.add node.name, node.params.length
 
   visitNumericLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
@@ -113,6 +116,10 @@ class @FirstPassVisitor extends BaseASTVisitor
   visitFunction_: (node) ->
     # exit symbol table entry
     @tabSet.enterGlobal()
+
+  visitParamters: (array) ->
+    # declare local variables
+    @tabSet.currentTab.add param for param in array
 
 class @SecondPassVisitor extends BaseASTVisitor
   # In the 2nd pass, we assign code generator to nodes.

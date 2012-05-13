@@ -35,6 +35,9 @@ class ConstTable
 class SymTabEntry
   constructor: (@flag, @number) ->
 
+class FuncEntry
+  constructor: (@flag, @argc, @number) ->
+
 class SymTable
   constructor: ->
     @_dict = {}
@@ -59,7 +62,9 @@ class LocalVars extends SymTable
   add: (name) -> @_add name, SYM_LOCAL
 
 class FuncTable extends SymTable
-  add: (name) -> @_add name, SYM_FUNC
+  add: (name, argc) ->
+    fe = new FuncEntry SYM_FUNC, argc, @count()
+    @_dict[name] = fe
 
 class SymTabSet
   constructor: ->

@@ -652,7 +652,7 @@ FormalParameterList
     }
 
 FunctionBody
-  = elements:SourceElements? { return elements !== "" ? elements : []; }
+  = elements:FunctionElements? { return elements !== "" ? elements : []; }
 
 Program
   = elements:SourceElements? {
@@ -661,6 +661,15 @@ Program
 
 SourceElements
   = head:SourceElement tail:(__ SourceElement)* {
+      var result = [head];
+      for (var i = 0; i < tail.length; i++) {
+        result.push(tail[i][1]);
+      }
+      return result;
+    }
+
+FunctionElements
+  = head:Statement tail:(__ Statement)* {
       var result = [head];
       for (var i = 0; i < tail.length; i++) {
         result.push(tail[i][1]);

@@ -1,0 +1,11 @@
+function foo() {
+  return 1 + 2 + 3;
+}
+
+function bar(x, y, z) {
+  return x + y + z;
+}
+
+x = foo();  //6 
+x += foo(); //12
+y = bar(x, 3, 5); //20

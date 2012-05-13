@@ -29,7 +29,9 @@ _genStore = (codeObj) ->
       codeObj.emit op.LDCONST, @constNum
 
     genFunctionCall: ->
-      # TODO gen code for function call
+      # arguments are pushed onto stack from RTL 
+      arg.genCode() for arg in @arguments.reverse()
+      codeObj.emit op.CALL, @symInfo.number
 
     genPostfixExpression: ->
       @expression.genCode()
@@ -259,6 +261,14 @@ _genStore = (codeObj) ->
       codeObj.emit op.RET
 
     genFunction: ->
+      codeObj.startFuncCode @symInfo.number
+      for elem in @elements
+        elem.genCode()
+        codeObj.emit op.POP if elem.leaveResult?
+      # In case that our function doesn't return anything,
+      # VM will leave an 'undefined' on the stack.
+      # So we don't have take care of it here.
+      codeObj.endFuncCode
 
     genProgram: ->
       # Program: [element]

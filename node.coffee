@@ -160,8 +160,11 @@ class @ReturnStatement extends Mixins
 class @Function_ extends Mixins
   constructor: (@name, @params, @elements) ->
   accept: (visitor) ->
+    # trigger enterFunction event
     visitor.enter 'Function_', this
-    param.accept visitor for param in @params
+    # @params is just an array of names
+    # Therefore, we visit parameters directly.
+    visitor.visitParameters @params
     @elements.accept visitor
     visitor.visitFunction_ this
 
