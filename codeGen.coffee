@@ -258,8 +258,11 @@ _genStore = (codeObj) ->
       codeObj.scopes.addBreakSlot codeObj.reserveSlot()
 
     genReturnStatement: ->
-      @value.genCode()
-      codeObj.emit op.RET
+      unless @value?
+        @value.genCode()
+        codeObj.emit op.RET
+      else
+        codeObj.emit op.NRET
 
     genFunction: ->
       codeObj.startFuncCode @symInfo.number

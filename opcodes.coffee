@@ -38,7 +38,7 @@
 @BOR = 37 # |
 @AND = 38 # &&
 @OR = 39  # ||
-@COND = 40 # TOS ? TOS1 : TOS2
-@ROT = 41 # swap TOS and TOS1
-@DUP = 42 # duplicate TOS
-@TYPEOF = 43 # typeof TOS
+@ROT = 40 # swap TOS and TOS1
+@DUP = 41 # duplicate TOS
+@TYPEOF = 42 # typeof TOS
+@NRET = 43  # return without value

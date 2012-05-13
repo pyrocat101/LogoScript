@@ -35,15 +35,15 @@ class ScopeChain
 
 class LogoFunction
   constructor: (@name, @argc) ->
-  invoke: (args...) ->
+  invoke: (args) ->
     if args.length isnt @argc
       throw new Error "#{name}() takes exactly #{@argc} arguments (#{argc.length} given)"
 
-class @BuiltinFunction extends LogoFunction
+class BuiltinFunction extends LogoFunction
   constructor: (name, argc, @func) -> super name, argc
   # It is invoked by VM
-  invoke: (args...) ->
-    super.apply this, args
+  invoke: (args) ->
+    super.call this, args
     # We should bind context of @func in advance
     return @func.apply null, args
 
@@ -53,9 +53,12 @@ class UserFunction extends LogoFunction
     @code = []
   # When invoked by VM, it should pass bytecode back to VM.
   # We should also bind 'visitor' in advance.
-  invoke: (visitor, args...) ->
-    super.apply this. args
+  invoke: (visitor, args) ->
+    super.call this. args
     visitor @code, args
+
+@BuiltinFunction = BuiltinFunction
+@UserFunction = UserFunction
 
 # This is the generated code object of our script.
 class @CodeObject
@@ -66,13 +69,11 @@ class @CodeObject
     # current generate context is @code
     @_currentCode = @code
     # init names
-    @_initConsts consts
-    @_initGlobalNames globals
-    @_initFuncInfos funcs
-    @_initFunctions()
-    @_initLocalNames locals
-
-  _initFunctions: -> @functions = []
+    @constNames = @_initConsts consts
+    @globalNames = @_initGlobalNames globals
+    @funcInfos = @_initFuncInfos funcs
+    @functions = []
+    @localNames = @_initLocalNames locals
 
   startFuncCode: (funcNum) ->
     func = @funcInfos[funcNum]
@@ -90,7 +91,7 @@ class @CodeObject
     consts.forEach (obj, nr) ->
       _array.push [obj, nr]
     _array.sort (x, y) -> x[1] - y[1]
-    @constNames = (x[0] for x in _array)
+    x[0] for x in _array
 
   # process global variables
   _initGlobalNames: (globals) ->
@@ -98,7 +99,7 @@ class @CodeObject
     globals.forEach (name, ste) ->
       _array.push [name, ste.number]
     _array.sort (x, y) -> x[1] - y[1]
-    @globalNames = (x[0] for x in _array)
+    x[0] for x in _array
 
   # process functions
   _initFuncInfos: (funcs) ->
@@ -106,17 +107,18 @@ class @CodeObject
     funcs.forEach (name, ste) ->
       _array.push [name, ste.number]
     _array.sort (x, y) -> x[1] - y[1]
-    @funcInfos = (name: x[0], argc: x[1] for x in _array)
+    name: x[0], argc: x[1] for x in _array
 
   # process local names
   _initLocalNames: (locals) ->
-    @localNames = {}
+    _localNames = {}
     for own k, v of locals
       _array = []
       v.forEach (name, ste) ->
         _array.push [name, ste.number]
       _array.sort (x, y) -> x[1] - y[1]
-      @localNames[k] = (x[0] for x in _array)
+      _localNames[k] = (x[0] for x in _array)
+    _localNames
 
   # generate code into current code context
   emit: (bytecode...) -> @_currentCode.push x for x in bytecode
