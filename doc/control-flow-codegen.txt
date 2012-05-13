@@ -145,3 +145,4 @@ CodeObject.prototype.reserveSlot = function () {
 CodeObject.prototype.genSlot = function () {
 	return this.currentCode.length - 1;
 }
+```

@@ -72,6 +72,9 @@ class @FirstPassVisitor extends BaseASTVisitor
     @tabSet.addLocal node.name
     # create symbol
     @tabSet.funcs.add node.name, node.params.length
+    # attach symbol info
+    node.symInfo = @tabSet.funcs.get node.name
+    
 
   visitNumericLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
@@ -99,7 +102,6 @@ class @FirstPassVisitor extends BaseASTVisitor
   visitFunctionCall: (node) ->
     # check for function name in symbol table
     unless @tabSet.funcs.contains node.name
-      #TODO handle error
       throw new Error "undefined function '#{node.name}'"
     # ref to symbol entry
     node.symInfo = @tabSet.funcs.get node.name
@@ -117,7 +119,7 @@ class @FirstPassVisitor extends BaseASTVisitor
     # exit symbol table entry
     @tabSet.enterGlobal()
 
-  visitParamters: (array) ->
+  visitParameters: (array) ->
     # declare local variables
     @tabSet.currentTab.add param for param in array
 

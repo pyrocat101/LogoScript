@@ -39,7 +39,6 @@ class @FunctionCall extends Mixins
   @include leaveResult
   constructor: (@name, args) -> @arguments = args
   accept: (visitor) ->
-    @name.accept visitor
     arg.accept visitor for arg in @arguments
     visitor.visitFunctionCall this
 
@@ -151,7 +150,6 @@ class @BreakStatement extends Mixins
   accept: (visitor) -> visitor.visitBreakStatement this
 
 class @ReturnStatement extends Mixins
-  @include leaveResult
   constructor: (@value) ->
   accept: (visitor) ->
     @value.accept visitor
@@ -165,7 +163,7 @@ class @Function_ extends Mixins
     # @params is just an array of names
     # Therefore, we visit parameters directly.
     visitor.visitParameters @params
-    @elements.accept visitor
+    elem.accept visitor for elem in @elements
     visitor.visitFunction_ this
 
 class @Program extends Mixins

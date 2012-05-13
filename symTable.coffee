@@ -12,25 +12,22 @@ SYM_FUNC = 3
 _dictCount = (obj) -> Object.keys(obj).length
 
 class ConstTable
-  constructor: (name) ->
-    @name = name
-    @_set = {}
+  constructor:  ->
+    @_set = new (require('./utils').Hashtable)
 
-  contains: (obj) -> obj of @_set
+  contains: (obj) -> @_set.containsKey obj
 
-  #put: (obj) -> @_set[obj] = _dictCount(@_set) if obj not in @_set
   put: (obj) -> 
-    if obj not of @_set
-      @_set[obj] = _dictCount @_set
-    else
-      @_set[obj]
+    unless @_set.containsKey obj
+      @_set.put obj, @_set.size()
+    @_set.get obj
 
-  count: -> _dictCount(@_set)
+  count: -> @_set.size()
 
-  get: (obj) -> @_set[obj]
+  get: (obj) -> @_set.get obj
 
   forEach: (cb, ctx = this) ->
-    cb.call(ctx, k, nr) for own k, nr of @_set
+    @_set.each (k, nr) -> cb.call ctx, k, nr
 
 class SymTabEntry
   constructor: (@flag, @number) ->
@@ -84,7 +81,7 @@ class SymTabSet
   
   # create a local symbol scope and set it as current scope
   addLocal: (name) ->
-    localTab = new @LocalVars()
+    localTab = new LocalVars
     @locals[name] = localTab
     @enter localTab
 

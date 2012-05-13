@@ -272,7 +272,7 @@ PrimaryExpression
   / "(" __ expression:Expression __ ")" { return expression; }
 
 CallExpression
-  = name:PrimaryExpression __ arguments:Arguments {
+  = name:Identifier __ arguments:Arguments {
       return new node.FunctionCall(name, arguments);
     }
 

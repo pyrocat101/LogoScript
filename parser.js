@@ -2990,7 +2990,7 @@ module.exports = (function(){
         
         pos0 = pos;
         pos1 = pos;
-        result0 = parse_PrimaryExpression();
+        result0 = parse_Identifier();
         if (result0 !== null) {
           result1 = parse___();
           if (result1 !== null) {

@@ -17,13 +17,13 @@ class ScopeChain
     throw new Error 'No scope in chain' if @_chain.length < 1
     top = @_chain[@_chain.length - 1]
     top.continueSlots.forEach (slot) =>
-      @codeObj.currentCode[slot] = label
+      @codeObj._currentCode[slot] = label
 
   patchBreak: (label) ->
     throw new Error 'No scope in chain' if @_chain.length < 1
     top = @_chain[@_chain.length - 1]
     top.breakSlots.forEach (slot) =>
-      @codeObj.currentCode[slot] = label
+      @codeObj._currentCode[slot] = label
 
   addBreakSlot: (slot) ->
     top = @_chain[@_chain.length - 1]
@@ -110,14 +110,13 @@ class @CodeObject
 
   # process local names
   _initLocalNames: (locals) ->
-    _array = []
     @localNames = {}
-    for own k, v in locals
+    for own k, v of locals
+      _array = []
       v.forEach (name, ste) ->
         _array.push [name, ste.number]
       _array.sort (x, y) -> x[1] - y[1]
       @localNames[k] = (x[0] for x in _array)
-      _array.clear()
 
   # generate code into current code context
   emit: (bytecode...) -> @_currentCode.push x for x in bytecode
@@ -129,24 +128,49 @@ class @CodeObject
     #throw new Error "Invalid opcode #{opcode}"
 
   dump: ->
-    # TODO dump functions
+    # dump code in global scope
+    @_dumpCode @code
+    utils.printf '\n'
+    # dump user-defined functions
+    for i in [0...@functions.length]
+      if @functions[i] instanceof UserFunction
+        _funcName = @functions[i].name
+        utils.printf '%s:\n', _funcName
+        @_dumpCode @functions[i].code, @localNames[_funcName]
+        utils.printf '\n'
+
+  _dumpCode: (code, localNames = @globalNames) ->
     i = 0
-    len = @code.length
+    len = code.length
     while i < len
-      opname = @_getOpName @code[i]
+      opname = @_getOpName code[i]
       utils.printf('%-4d%-10s', i, opname)
       # deal with operand
-      # TODO provide extra info of operand
-      if opname in ['LDCONST', 'LDLOCAL', 'LDGLOBAL', 'STLOCAL', 'STGLOBAL', 'CALL', 'JT', 'JF', 'JMP', 'DELLOCAL', 'DELGLOBAL']
-        utils.printf('%d\n', @code[++i])
-      else
-        utils.printf('\n')
+      switch opname
+        when 'LDCONST'
+          _const = @constNames[code[++i]]
+          if _const.constructor is String
+            utils.printf "%d ('%s')", code[i], _const
+          else
+            utils.printf "%d (%s)", code[i], _const
+        when 'LDLOCAL', 'STLOCAL', 'DELLOCAL'
+          throw new Error "Invalid local var" if not localNames?
+          _local = localNames[code[++i]]
+          utils.printf '%d (%s)', code[i], _local
+        when 'LDGLOBAL', 'STGLOBAL', 'DELGLOBAL'
+          _globalName = @globalNames[code[++i]] 
+          utils.printf '%d (%s)', code[i], _globalName
+        when 'CALL'
+          _funcName = @funcInfos[code[++i]].name
+          utils.printf '%d (%s)', code[i], _funcName
+        when 'JT', 'JF', 'JMP'
+          utils.printf '%d', code[++i]
+      utils.printf('\n')
       i++
 
   reserveSlot: ->
-    ret = @_currentCode.length
     @emit 0
-    ret
+    @_currentCode.length - 1
 
   genSlot: -> @_currentCode.length - 1
 

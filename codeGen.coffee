@@ -258,6 +258,7 @@ _genStore = (codeObj) ->
       codeObj.scopes.addBreakSlot codeObj.reserveSlot()
 
     genReturnStatement: ->
+      @value.genCode()
       codeObj.emit op.RET
 
     genFunction: ->
@@ -268,7 +269,7 @@ _genStore = (codeObj) ->
       # In case that our function doesn't return anything,
       # VM will leave an 'undefined' on the stack.
       # So we don't have take care of it here.
-      codeObj.endFuncCode
+      codeObj.endFuncCode()
 
     genProgram: ->
       # Program: [element]
