@@ -5,13 +5,26 @@ codeObject = require './codeObj'
 codeGen = require './codeGen'
 symTab = require './symTable'
 logoVM = require './vm'
+builtins = require './builtins'
 
 registerBuiltins = (funcTable, builtins) ->
   for builtin in builtins
     funcTable.add builtin.name, builtin.argc
 
-# some test here
+# add built-in functions
+builtinFuncs = []
 print = new codeObject.BuiltinFunction 'print', 1, console.log
+builtinFuncs.push print
+# math functions
+builtins.getMathFuncs (name, func, argc) ->
+  f = new codeObj.BuiltinFunction name, argc, func
+  builtinFuncs.push f
+# Turtle
+turtle = new builtins.Turtle
+# drawing functions
+turtle.getFuncs (name, func, argc) ->
+  f = new codeObj.BuiltinFunction name, argc, func
+  builtinFuncs.push f
 
 throw new Error "no input file" if process.argv.length < 3
 fs.readFile process.argv[2], 'utf-8', (err, data) ->
@@ -20,7 +33,7 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   parseTree = parser.parse data
   tabSet = new symTab.SymTabSet()
 
-  registerBuiltins tabSet.funcs, [print]
+  registerBuiltins tabSet.funcs, builtinFuncs
 
   pass1 = new tree.FirstPassVisitor tabSet
   parseTree.accept pass1
@@ -36,7 +49,7 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   parseTree.accept pass2
 
   # add builtin functions into code object
-  codeObj.addBuiltinFuncs [print]
+  codeObj.addBuiltinFuncs builtinFuncs
 
   # generate code
   parseTree.genCode()
@@ -50,4 +63,5 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   # kick it!
   vm = new logoVM.LogoVM codeObj
   vm.run()
-
+  # test: draw image
+  turtle.drawImage 'output.png'

@@ -1,23 +1,5 @@
-function new() {
-    // set default screen, pen and turtle values
-    setbg(0, 0, 0);
-    setpc(0, 1, 0);
-    setpw(1);
-    pu();
-}
-
-function ang_col(theta) {
+function getColor(theta) {
     return abs(255 * cos(theta));
-}
-
-function spiral(angle, twist) {
-    // Twisted Rose Curves
-    radius = 180 * sin(4 * angle);
-    angle = angle + 20 * sin(twist * angle);
-    setpw(width(angle, radius));
-    setpc(ang_col(30 + 3 * angle), 0, 255);
-    setxy(radius * sin(angle), radius * cos(angle));
-    pd();
 }
 
 function width(angle, radius) {
@@ -25,7 +7,17 @@ function width(angle, radius) {
     return 2 * (1.5 + sin(45 + 2 * geth()));
 }
 
-new();
+function spiral(angle, twist) {
+    // Twisted Rose Curves
+    radius = 180 * sin(4 * angle);
+    angle = angle + 20 * sin(twist * angle);
+    setpw(width(angle, radius));
+    setpc('rgb(' + getColor(30 + 3 * angle) + '0, 255)');
+    setxy(radius * sin(angle), radius * cos(angle));
+    pd();
+}
+
+pu();
 for (twist = 0; twisted < 24; twisted++) {
     for (angle = 0; angle < 360; angle++) {
         spiral(angle, twist);
