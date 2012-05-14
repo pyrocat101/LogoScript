@@ -43,7 +43,7 @@ class BuiltinFunction extends LogoFunction
   constructor: (name, argc, @func) -> super name, argc
   # It is invoked by VM
   invoke: (args) ->
-    super.call this, args
+    super args
     # We should bind context of @func in advance
     return @func.apply null, args
 
@@ -54,7 +54,7 @@ class UserFunction extends LogoFunction
   # When invoked by VM, it should pass bytecode back to VM.
   # We should also bind 'visitor' in advance.
   invoke: (visitor, args) ->
-    super.call this. args
+    super args
     visitor @code, args
 
 @BuiltinFunction = BuiltinFunction
@@ -69,7 +69,7 @@ class @CodeObject
     # current generate context is @code
     @_currentCode = @code
     # init names
-    @constNames = @_initConsts consts
+    @consts = @_initConsts consts
     @globalNames = @_initGlobalNames globals
     @funcInfos = @_initFuncInfos funcs
     @functions = []
@@ -83,7 +83,7 @@ class @CodeObject
   endFuncCode: (funcNum) -> @_currentCode = @code
 
   addBuiltinFuncs: (builtins) ->
-    @functions[i] = builtins[i] for [0...builtins.length]
+    @functions[0...builtins.length] = builtins
 
   # process constant table
   _initConsts: (consts) ->
@@ -95,6 +95,7 @@ class @CodeObject
 
   # process global variables
   _initGlobalNames: (globals) ->
+    # TODO symbol entry is more than just a name!
     _array = []
     globals.forEach (name, ste) ->
       _array.push [name, ste.number]
@@ -104,10 +105,10 @@ class @CodeObject
   # process functions
   _initFuncInfos: (funcs) ->
     _array = []
-    funcs.forEach (name, ste) ->
-      _array.push [name, ste.number]
-    _array.sort (x, y) -> x[1] - y[1]
-    name: x[0], argc: x[1] for x in _array
+    funcs.forEach (name, fe) ->
+      _array.push [fe.number, fe.argc, name]
+    _array.sort (x, y) -> x[0] - y[0]
+    name: x[2], argc: x[1] for x in _array
 
   # process local names
   _initLocalNames: (locals) ->
@@ -150,7 +151,7 @@ class @CodeObject
       # deal with operand
       switch opname
         when 'LDCONST'
-          _const = @constNames[code[++i]]
+          _const = @consts[code[++i]]
           if _const.constructor is String
             utils.printf "%d ('%s')", code[i], _const
           else

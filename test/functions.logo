@@ -6,6 +6,9 @@ function bar(x, y, z) {
   return x + y + z;
 }
 
-x = foo();  //6 
-x += foo(); //12
-y = bar(x, 3, 5); //20
+x = foo();  // 6
+print(x);
+x += foo(); // 12
+print(x);
+y = bar(x, 3, 5); // 20
+print(y);

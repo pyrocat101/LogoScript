@@ -27,11 +27,13 @@ class LogoVM
           if typeof _local == 'undefined'
             _name = @codeObj.localNames[funcName][code[pc]]
             throw new Error "#{_name} is not defined"
+          stack.push _local
         when op.LDGLOBAL
           _global = @globals[code[++pc]]
           if typeof _global == 'undefined'
             _name = @codeObj.globalNames[code[pc]]
             throw new Error "#{_name} is not defined"
+          stack.push _global
         when op.STLOCAL
           localContext[code[++pc]] = stack[stack.length - 1]
         when op.STGLOBAL
@@ -41,20 +43,20 @@ class LogoVM
           # copy arguments
           _args = (stack.pop() for i in [0..._func.argc])
           if _func instanceof BuiltinFunction
-            # invoke function and leave return value on the stack.
+            # invoke function & leave return value on stack.
             stack.push _func.invoke _args    
           else if _func instanceof UserFunction
-            _funcName = @codeObj.funcInfos[code[pc]].name
+            _callee = @codeObj.funcInfos[code[pc]].name
             _func.invoke ((code, args) =>
               # create local context
               # TODO cache!
               _localContext = []
-              for i in [0...@codeObj.localNames[funcName].length]
+              for i in [0...@codeObj.localNames[_callee].length]
                 _localContext.push undefined
               # copy arguments into local context
-              _localContext[i..._func.argc] = _args
-              stack.push @_run code, _localContext, _funcNum
-            ), args
+              _localContext[0..._func.argc] = args
+              stack.push @_run code, _localContext, _callee
+            ), _args
         when op.RET then return stack.pop()
         when op.JT
           if stack.pop() then pc = code[++pc] else ++pc
@@ -88,8 +90,8 @@ class LogoVM
           delete @globals[code[++pc]]
           # delete is always successful
           stack.push true
-        when op.INC then ++(stack[stack.length - 1])
-        when op.DEC then --(stack[stack.length - 1])
+        when op.INC then ++stack[stack.length - 1]
+        when op.DEC then --stack[stack.length - 1]
         when op.POS
           stack[stack.length - 1] = +(stack[stack.length - 1])
         when op.NEG
@@ -133,7 +135,7 @@ class LogoVM
         when op.NOT
           stack[stack.length - 1] = !(stack[stack.length - 1])
         when op.BNEG
-          stack[stack.length - 1] = ~stack[stack.length - 1])
+          stack[stack.length - 1] = ~(stack[stack.length - 1])
         when op.BAND
           _x = stack.pop()
           _y = stack.pop()
@@ -165,9 +167,9 @@ class LogoVM
           stack.push stack[stack.length - 1]
         when op.TYPEOF then stack.push typeof stack.pop
         when op.NRET then return undefined
+        else throw new Error "Invalid opcode #{code[pc]}"
+      pc++
 
-        else
-          throw new Error 'Invalid opcode'
-      i++
-      return 0
+    return 0
           
+@LogoVM = LogoVM

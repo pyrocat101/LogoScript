@@ -258,7 +258,7 @@ _genStore = (codeObj) ->
       codeObj.scopes.addBreakSlot codeObj.reserveSlot()
 
     genReturnStatement: ->
-      unless @value?
+      if @value?
         @value.genCode()
         codeObj.emit op.RET
       else
