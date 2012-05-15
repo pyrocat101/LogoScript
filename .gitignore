@@ -4,3 +4,4 @@
 .*.swo
 .*.swn
 node_modules
+test/roses/

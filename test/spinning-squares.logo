@@ -1,0 +1,34 @@
+function hue(theta) {
+  red = round(127.5 * (1 + sin(theta)));
+  green = round(127.5 * (1 + sin(theta + 120)));
+  blue = round(127.5 * (1 + sin(theta + 240)));
+  return 'rgb(' + red + ',' + green + ',' + blue + ')';
+}
+
+function square(side) {
+  bk(side / 2);
+  rt(90);
+  bk(side / 2);
+  pd();
+  for (i = 0; i < 4; i++) {
+    fd(side);
+    lt(90);
+  }
+  pu();
+  fd(side / 2);
+  lt(90);
+  fd(side / 2);
+}
+
+function spinSquare(side) {
+  if (side < 12) return;
+  setpc(hue(1.4 * side));
+  square(side);
+  lt(4);
+  spinSquare(side - 8);
+}
+
+clear('black');
+pu();
+rt(6);
+spinSquare(340);

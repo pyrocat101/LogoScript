@@ -17,13 +17,13 @@ print = new codeObject.BuiltinFunction 'print', 1, console.log
 builtinFuncs.push print
 # math functions
 builtins.getMathFuncs (name, func, argc) ->
-  f = new codeObj.BuiltinFunction name, argc, func
+  f = new codeObject.BuiltinFunction name, argc, func
   builtinFuncs.push f
 # Turtle
 turtle = new builtins.Turtle
 # drawing functions
 turtle.getFuncs (name, func, argc) ->
-  f = new codeObj.BuiltinFunction name, argc, func
+  f = new codeObject.BuiltinFunction name, argc, func
   builtinFuncs.push f
 
 throw new Error "no input file" if process.argv.length < 3
@@ -38,7 +38,8 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   pass1 = new tree.FirstPassVisitor tabSet
   parseTree.accept pass1
 
-  console.log(require('util').inspect(parseTree, false, null))
+  # parse tree
+  #console.log(require('util').inspect(parseTree, false, null))
 
   codeObj = new codeObject.CodeObject(tabSet.consts,
                                    tabSet.globals,
@@ -55,7 +56,7 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   parseTree.genCode()
 
   # view byte code
-  codeObj.dump()
+  #codeObj.dump()
   #console.log codeObj.functions
   #console.log codeObj.constNames
   #console.log codeObj.globalNames

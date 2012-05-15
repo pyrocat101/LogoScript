@@ -93,10 +93,13 @@ class @FirstPassVisitor extends BaseASTVisitor
     unless @tabSet.currentTab.contains node.name
       unless @tabSet.isGlobal node.name
         throw new Error "undefined variable '#{node.name}'"
-      # add global variable symbol info
-      node.symInfo = @tabSet.globals.get node.name
-    # add local variable symbol info
-    node.symInfo = @tabSet.currentTab.get node.name
+      else
+        # add global variable symbol info
+        node.symInfo = @tabSet.globals.get node.name
+    else
+      # add local variable symbol info
+      node.symInfo = @tabSet.currentTab.get node.name
+    
 
   # TODO change logic to suit new synbol table machanism from here!
   visitFunctionCall: (node) ->

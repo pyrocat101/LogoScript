@@ -3302,7 +3302,7 @@ module.exports = (function(){
           }
           if (result0 !== null) {
             result0 = (function(offset, operator, expression) {
-                return UnaryExpression(operator, expression);
+                return new node.UnaryExpression(operator, expression);
               })(pos0, result0[0], result0[2]);
           }
           if (result0 === null) {

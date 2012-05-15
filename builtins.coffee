@@ -1,18 +1,18 @@
 Canvas = require 'canvas'
 fs = require 'fs'
 
-_toRadian (_d) -> _d * Math.PI / 180
-_toDegree (_d) -> 180 * _d / Math.PI
+deg2rad = Math.PI / 180
+rad2deg = 180 / Math.PI
 
 getMathFuncs = (cb) ->
   # cb(name, func, argc)
   cb 'abs', Math.abs, 1
-  cb 'acos', Math.acos, 1
-  cb 'asin', Math.asin, 1
-  cb 'atan', Math.atan, 1
-  cb 'atan2', Math.atan2, 2
+  cb 'acos', ((x) -> rad2deg * Math.acos(x)), 1
+  cb 'asin', ((x) -> rad2deg * Math.asin(x)), 1
+  cb 'atan', ((x) -> rad2deg * Math.atan(x)), 1
+  cb 'atan2', ((y, x) -> rad2deg * Math.atan2(y, x)), 2
   cb 'ceil', Math.ceil, 1
-  cb 'cos', Math.cos, 1
+  cb 'cos', ((x) -> Math.cos(x * deg2rad)), 1
   cb 'exp', Math.exp, 1
   cb 'floor', Math.floor, 1
   cb 'log', Math.log, 1
@@ -21,9 +21,9 @@ getMathFuncs = (cb) ->
   cb 'pow', Math.pow, 2
   cb 'random', Math.random, 0
   cb 'round', Math.round, 1
-  cb 'sin', Math.sin, 1
+  cb 'sin', ((x) -> Math.sin(x * deg2rad)), 1
   cb 'sqrt', Math.sqrt, 1
-  cb 'tan', Math.tan, 1
+  cb 'tan', ((x) -> Math.tan(x * deg2rad)), 1
 
 @getMathFuncs = getMathFuncs
 
@@ -33,6 +33,11 @@ class Turtle
     # TODO change canvas size
     @_canvas = new Canvas 400, 400
     @_ctx = @_canvas.getContext '2d'
+    # fill background with white
+    @_ctx.save()
+    @_ctx.fillStyle = 'white'
+    @_ctx.fillRect 0, 0, 400, 400
+    @_ctx.restore()
     # human coordinate system
     # setTransform(m11, m12, m21, m22, dx, dy)
     # Matrix:
@@ -42,8 +47,8 @@ class Turtle
     @_ctx.setTransform 1, 0, 0, -1, 200, 200
     # set line cap and line join
     @_ctx.lineJoin = @_ctx.lineCap = 'round'
-    @_posx = 200
-    @_posy = 200
+    @_posx = 0
+    @_posy = 0
     @_heading = 0
     @_isPenUp = false
 
@@ -78,20 +83,27 @@ class Turtle
   seth2: (x, y) ->
     dx = x - @_posx
     dy = y - @_posy
-    if dy > 0
-      @_heading = _toDegree Math.atan dx / dy
-    else
-      @_heading = 180 - _toDegree Math.atan dx / dy
-      @_heading = -(@_heading) if x <= 0
+    @_heading = 90 + rad2deg * Math.atan dy, dx
+    #if dy > 0
+      #@_heading = rad2deg * Math.atan dx / dy
+    #else
+      #@_heading = 180 - rad2deg * Math.atan dx / dy
+      #@_heading = -(@_heading) if x <= 0
 
   geth: -> @_heading % 180
 
+  clear: (c) ->
+    @_ctx.save()
+    @_ctx.fillStyle = c
+    @_ctx.fillRect -200, -200, 400, 400
+    @_ctx.restore()
+
   setxy: (x, y) ->
     unless @_isPenUp
-      ctx.moveTo @_posx, @_posy
-      ctx.beginPath()
-      ctx.lineTo x, y
-      ctx.stroke()
+      @_ctx.beginPath()
+      @_ctx.moveTo @_posx, @_posy
+      @_ctx.lineTo x, y
+      @_ctx.stroke()
     @_posx = x
     @_posy = y
 
@@ -102,17 +114,17 @@ class Turtle
   setpw: (w) -> @_ctx.lineWidth = w
 
   text: (t) ->
-    ctx.save()
+    @_ctx.save()
     # transform
-    ctx.transform 1, 0, 0, -1, 0, 0
-    ctx.fillText t, @_posx, @_posy
-    ctx.restore()
+    @_ctx.transform 1, 0, 0, -1, 0, 0
+    @_ctx.fillText t, @_posx, @_posy
+    @_ctx.restore()
 
   font: (f) -> @_ctx.font = f
 
   drawImage: (path) ->
     out = fs.createWriteStream path
-    stream = canvas.createPNGStream()
+    stream = @_canvas.createPNGStream()
     stream.on 'data', (chunk) -> out.write chunk
 
   getFuncs: (cb) ->
@@ -132,5 +144,6 @@ class Turtle
     cb 'setxy', @setxy.bind(this), 2
     cb 'setpc', @setpc.bind(this), 1
     cb 'setpw', @setpw.bind(this), 1
+    cb 'clear', @clear.bind(this), 1
 
 @Turtle = Turtle

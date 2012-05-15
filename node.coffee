@@ -152,7 +152,7 @@ class @BreakStatement extends Mixins
 class @ReturnStatement extends Mixins
   constructor: (@value) ->
   accept: (visitor) ->
-    @value.accept visitor
+    @value?.accept visitor
     visitor.visitReturnStatement this
 
 class @Function_ extends Mixins

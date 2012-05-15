@@ -307,7 +307,7 @@ PostfixOperator
 UnaryExpression
   = PostfixExpression
   / operator:UnaryOperator __ expression:UnaryExpression {
-      return UnaryExpression(operator, expression);
+      return new node.UnaryExpression(operator, expression);
     }
 
 UnaryOperator
