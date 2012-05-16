@@ -28,15 +28,22 @@ getMathFuncs = (cb) ->
 @getMathFuncs = getMathFuncs
 
 class Turtle
-  constructor: ->
+  constructor: (options) ->
     # default canvas size is 400x400
-    # TODO change canvas size
-    @_canvas = new Canvas 400, 400
+    if options.width? and options.height?
+      @_canvas = new Canvas options.width, options.height
+    else
+      @_canvas = new Canvas 400, 400
     @_ctx = @_canvas.getContext '2d'
+    # default output path is 'output.png'
+    @_output = options.output ? 'output.png'
+    # no anti-alias?
+    @_ctx.antilias = 'none' unless options.antilias == false
+    
     # fill background with white
     @_ctx.save()
     @_ctx.fillStyle = 'white'
-    @_ctx.fillRect 0, 0, 400, 400
+    @_ctx.fillRect 0, 0, @_canvas.width, @_canvas.height
     @_ctx.restore()
     # human coordinate system
     # setTransform(m11, m12, m21, m22, dx, dy)
@@ -44,7 +51,7 @@ class Turtle
     # m11 m21 dx
     # m12 m22 dy
     # 0   0   1
-    @_ctx.setTransform 1, 0, 0, -1, 200, 200
+    @_ctx.setTransform 1, 0, 0, -1, @_canvas.width / 2, @_canvas.height / 2
     # set line cap and line join
     @_ctx.lineJoin = @_ctx.lineCap = 'round'
     @_posx = 0
@@ -93,9 +100,11 @@ class Turtle
   geth: -> @_heading % 180
 
   clear: (c) ->
+    w = @_canvas.width
+    h = @_canvas.height
     @_ctx.save()
     @_ctx.fillStyle = c
-    @_ctx.fillRect -200, -200, 400, 400
+    @_ctx.fillRect -(w / 2), -(h / 2), w, h
     @_ctx.restore()
 
   setxy: (x, y) ->

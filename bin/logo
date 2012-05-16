@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+
+var path = require('path'),
+    program = require('commander'),
+    fs = require('fs'),
+    lib = path.join(path.dirname(fs.realpathSync(__filename)), '../lib'),
+    logo = require(path.join(lib, 'logo-script'));
+
+var options = {};
+
+// options
+program.version(logo.VERSION)
+       .usage('[options] [src]')
+       .option('-o, --output <path>', 'output image to <path>')
+       .option('-s, --size <w>x<h>', 'canvas size (default 400x400)')
+       .option('-A, --no-antialias', 'disable antialias (draw a bit faster)')
+       .option('-d, --dump', 'dump bytecode to stdout')
+       .option('-D, --no-draw', 'do not draw image')
+       .option('-t, --ast', 'show parsed AST');
+
+program.on('--help', function () {
+  console.log('  Exmaples:');
+  console.log('');
+  console.log('    $ logo rose.logo -o rose.png');
+  console.log('');
+});
+
+program.parse(process.argv);
+
+// --size
+
+if (program.size) {
+  (function (size) {
+    var re = /^(\d+)x(\d+)$/, matches = re.exec(size);
+    if (matches.length !== 3) {
+      console.log('Invalid size argument: ' + size);
+      process.exit(-1);
+    } else {
+      options.width = matches[1], options.height = matches[2];
+    }
+  })(program.size);
+}
+
+// --output
+
+if (program.output) options.output = program.output;
+
+// --no-antialias
+
+options.antilias = program.antialias;
+
+// --dump
+
+options.dump = program.dump;
+
+// --no-draw
+
+options.draw = program.draw;
+
+// --ast
+options.ast = program.ast;
+
+// compile file
+
+if (program.args.length) {
+  var src = program.args[0];
+  // read source file
+  fromFile(src);
+} else {
+  stdin();
+}
+
+// compile from stdin
+
+function stdin() {
+  var buf = '';
+  process.stdin.setEncoding('utf-8');
+  process.stdin.on('data', function (chunk) { buf += chunk; });
+  process.stdin.on('end', function () {
+    logo.run(buf, options);
+  }).resume();
+}
+
+// compile from file
+
+function fromFile(path) {
+  fs.lstat(path, function (err, stat) {
+    if (err) throw err;
+    // Found logo source file
+    fs.readFile(path, 'utf-8', function (err, str) {
+      if (err) throw err;
+      options.src = path;
+      logo.run(str, options);
+    });
+  });
+}
+

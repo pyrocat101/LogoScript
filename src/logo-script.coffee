@@ -1,4 +1,3 @@
-fs = require 'fs'
 parser = require './parser'
 tree = require './tree'
 codeObject = require './codeObj'
@@ -6,6 +5,8 @@ codeGen = require './codeGen'
 symTab = require './symTable'
 logoVM = require './vm'
 builtins = require './builtins'
+
+@VERSION = '0.1.0'
 
 registerBuiltins = (funcTable, builtins) ->
   for builtin in builtins
@@ -19,35 +20,37 @@ builtinFuncs.push print
 builtins.getMathFuncs (name, func, argc) ->
   f = new codeObject.BuiltinFunction name, argc, func
   builtinFuncs.push f
-# Turtle
-turtle = new builtins.Turtle
-# drawing functions
-turtle.getFuncs (name, func, argc) ->
-  f = new codeObject.BuiltinFunction name, argc, func
-  builtinFuncs.push f
 
-throw new Error "no input file" if process.argv.length < 3
-fs.readFile process.argv[2], 'utf-8', (err, data) ->
-  console.error err if err
-
-  parseTree = parser.parse data
+@run = (src, options = {}) ->
+  parseTree = parser.parse src
   tabSet = new symTab.SymTabSet()
+  
+  # Turtle
+  turtleOpt =
+    width: options.width
+    height: options.height
+    output: options.output
+    antialias: options.antialias
+
+  turtle = new builtins.Turtle turtleOpt
+  # drawing functions
+  turtle.getFuncs (name, func, argc) ->
+    f = new codeObject.BuiltinFunction name, argc, func
+    builtinFuncs.push f
 
   registerBuiltins tabSet.funcs, builtinFuncs
 
-  pass1 = new tree.FirstPassVisitor tabSet
-  parseTree.accept pass1
+  parseTree.accept new tree.FirstPassVisitor tabSet
 
-  # parse tree
-  #console.log(require('util').inspect(parseTree, false, null))
+  # show parse tree
+  console.log(require('util').inspect(parseTree, false, null)) if options.ast
 
   codeObj = new codeObject.CodeObject(tabSet.consts,
                                    tabSet.globals,
                                    tabSet.funcs,
                                    tabSet.locals)
   codeGenerator = codeGen.getGenerator codeObj
-  pass2 = new tree.SecondPassVisitor codeGenerator
-  parseTree.accept pass2
+  parseTree.accept new tree.SecondPassVisitor codeGenerator
 
   # add builtin functions into code object
   codeObj.addBuiltinFuncs builtinFuncs
@@ -56,7 +59,7 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   parseTree.genCode()
 
   # view byte code
-  #codeObj.dump()
+  codeObj.dump() if options.dump
   #console.log codeObj.functions
   #console.log codeObj.constNames
   #console.log codeObj.globalNames
@@ -64,5 +67,7 @@ fs.readFile process.argv[2], 'utf-8', (err, data) ->
   # kick it!
   vm = new logoVM.LogoVM codeObj
   vm.run()
-  # test: draw image
-  turtle.drawImage 'output.png'
+
+  # default output path is 'output.png'
+  outPath = options.output ? 'output.png'
+  turtle.drawImage outPath unless options.drawImage == false

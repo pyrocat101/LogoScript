@@ -1,59 +1,71 @@
-Control Flow
-============
+# Control Flow
 
-VariableDeclaration:
-	STLOCAL/STGLOBAL x
+VariableDeclaration: `STLOCAL/STGLOBAL x`
 
-VariableStatement:
-	POP
+VariableStatement: `POP`
 
 IfStatement:
+
+```
 	if (cond) {
 		trueExp;
 	}
-{{{
+```
+
+```
 	cond
 	JF label1
 	trueExp (pop)
 label1:	...
-}}}
+```
 
+```
 	if (cond) {
 		trueExp;
 	} else {
 		falseExp;
 	}
-{{{
+```
+
+```
 	cond
 	JF label1
 	trueExp (pop)
 	JMP label2
 label1:	falseExp (pop)
 label2:	...
-}
+```
 
 DoWhileStatement:
+
+```
 	do {
 		exp
 		break;
 		continue;
 	} while (cond);
-{{{
+```
+
+```
 label1:	exp (pop)
 	JMP label3 (this is break!)
 	JMP label2 (this is continue!)
 label2:	cond
 	JT label1
 label3:	...
-}}}
+```
 
 WhileStatement:
-	while (cond) {
-		exp
-		break;
-		continue;
-	}
-{{{
+
+```
+while (cond) {
+    exp
+    break;
+    continue;
+}
+```
+
+```
 label1:	cond
 	JF label2
 	exp (pop)
@@ -61,15 +73,19 @@ label1:	cond
 	JMP label1 (this is continue!)
 	JMP label1
 label2:	...
-}}}
+```
 
 ForStatement:
-	for (init; test; counter) {
-		exp
-		break;
-		continue;
-	}
-{{{
+
+```
+for (init; test; counter) {
+    exp
+    break;
+    continue;
+}
+```
+
+```
 	init (pop)
 label1:	test
 	JF label3
@@ -79,9 +95,11 @@ label1:	test
 label2:	counter (pop)
 	JMP label1
 label3:	...
-}}}
+```
+
 In case that there are no 'test' part, the code is:
-{{{
+
+```
 	init (pop)
 label1:	exp (pop)
 	JMP label3 (this is break!)
@@ -89,10 +107,10 @@ label1:	exp (pop)
 label2: counter (pop)
 	JMP label1
 label3: ...
-}}}
+```
 
-Data Structure & Interface
-==========================
+# Data Structure & Interface
+
 We use scopes to implement code back-patching.
 This is intended for 'continue' and 'break'
 
