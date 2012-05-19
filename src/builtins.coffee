@@ -38,7 +38,7 @@ class Turtle
     # default output path is 'output.png'
     @_output = options.output ? 'output.png'
     # no anti-alias?
-    @_ctx.antilias = 'none' unless options.antilias == false
+    @_ctx.antialias = 'none' if options.antialias == false
     
     # fill background with white
     @_ctx.save()

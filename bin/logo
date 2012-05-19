@@ -47,7 +47,7 @@ if (program.output) options.output = program.output;
 
 // --no-antialias
 
-options.antilias = program.antialias;
+options.antialias = program.antialias;
 
 // --dump
 

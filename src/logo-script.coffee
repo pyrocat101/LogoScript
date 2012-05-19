@@ -70,4 +70,4 @@ builtins.getMathFuncs (name, func, argc) ->
 
   # default output path is 'output.png'
   outPath = options.output ? 'output.png'
-  turtle.drawImage outPath unless options.drawImage == false
+  turtle.drawImage outPath unless options.draw == false
