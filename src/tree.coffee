@@ -46,7 +46,7 @@ class BaseASTVisitor
   visitForStatement: (node) ->
 
   visitContinueStatement: (node) ->
-  
+
   visitBreakStatement: (node) ->
 
   visitReturnStatement: (node) ->
@@ -62,7 +62,7 @@ class BaseASTVisitor
     @['enter' + nodeName]?(node)
 
 class @FirstPassVisitor extends BaseASTVisitor
-  # In the 1st pass, we construct constant table and 
+  # In the 1st pass, we construct constant table and
   # gather symbol information.
   constructor: (@tabSet) ->
 
@@ -74,7 +74,7 @@ class @FirstPassVisitor extends BaseASTVisitor
     @tabSet.funcs.add node.name, node.params.length
     # attach symbol info
     node.symInfo = @tabSet.funcs.get node.name
-    
+
 
   visitNumericLiteral: (node) ->
     node.constNum = @tabSet.consts.put node.value
@@ -99,16 +99,15 @@ class @FirstPassVisitor extends BaseASTVisitor
     else
       # add local variable symbol info
       node.symInfo = @tabSet.currentTab.get node.name
-    
 
-  # TODO change logic to suit new synbol table machanism from here!
+
   visitFunctionCall: (node) ->
     # check for function name in symbol table
     unless @tabSet.funcs.contains node.name
       throw new Error "undefined function '#{node.name}'"
     # ref to symbol entry
     node.symInfo = @tabSet.funcs.get node.name
-  
+
   visitVariableDeclaration: (node) ->
     unless @tabSet.currentTab.contains node.name
       unless @tabSet.isGlobal node.name

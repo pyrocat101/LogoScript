@@ -11,7 +11,7 @@ _genStore = (codeObj) ->
       throw new Error "Invalid symbol: #{@name}"
 
 @getGenerator = (codeObj) ->
-  # In the following code generation functions, 
+  # In the following code generation functions,
   # the 'this' object is the current node context.
   # Also, the codeObj indicates the code object to generate
   # code upon.
@@ -29,7 +29,7 @@ _genStore = (codeObj) ->
       codeObj.emit op.LDCONST, @constNum
 
     genFunctionCall: ->
-      # arguments are pushed onto stack from RTL 
+      # arguments are pushed onto stack from RTL
       arg.genCode() for arg in @arguments.reverse()
       codeObj.emit op.CALL, @symInfo.number
 
@@ -92,7 +92,7 @@ _genStore = (codeObj) ->
       codeObj.emit op.JF
       slot1 = codeObj.reserveSlot()
       @trueExpression.genCode()
-      #codeObj.emit op.POP if @ifStatement.leaveResult? 
+      #codeObj.emit op.POP if @ifStatement.leaveResult?
 
       codeObj.emit op.JMP
       slot2 = codeObj.reserveSlot()
@@ -167,7 +167,7 @@ _genStore = (codeObj) ->
       codeObj.emit op.JF
       slot1 = codeObj.reserveSlot()
       @ifStatement.genCode()
-      codeObj.emit op.POP if @ifStatement.leaveResult? 
+      codeObj.emit op.POP if @ifStatement.leaveResult?
       # if-else
       if @elseStatement?
         codeObj.emit op.JMP
@@ -199,7 +199,7 @@ _genStore = (codeObj) ->
 
     genWhileStatement: ->
       codeObj.scopes.pushScope()
-      
+
       label1 = codeObj.peekLabel()
       @condition.genCode()
       codeObj.emit op.JF
@@ -230,10 +230,10 @@ _genStore = (codeObj) ->
         @test.genCode()
         codeObj.emit op.JF
         slot3 = codeObj.reserveSlot()
- 
+
       @statement.genCode()
       codeObj.emit op.POP if @statement.leaveResult?
-      
+
       label2 = codeObj.peekLabel()
       if @counter?
         @counter.genCode()

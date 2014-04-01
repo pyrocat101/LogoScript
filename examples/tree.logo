@@ -1,5 +1,5 @@
 function treeColor(length) {
-	return 2.5 * (100 - length);
+  return 2.5 * (100 - length);
 }
 
 angle = 50;
@@ -11,12 +11,12 @@ function tree(length) {
   fd(length);
   lt(angle / 2);
   tree(length * 0.65);
-	rt(angle);
-	tree(length * 0.85);
-	lt(angle / 2);
-	pu();
-	bk(length);
-	pd();
+  rt(angle);
+  tree(length * 0.85);
+  lt(angle / 2);
+  pu();
+  bk(length);
+  pd();
 }
 
 clear('black');

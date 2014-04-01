@@ -133,14 +133,12 @@ class @CodeObject
   dump: ->
     # dump code in global scope
     @_dumpCode @code
-    utils.printf '\n'
     # dump user-defined functions
     for i in [0...@functions.length]
       if @functions[i] instanceof UserFunction
         _funcName = @functions[i].name
-        utils.printf '%s:\n', _funcName
+        utils.printf '%s:', _funcName
         @_dumpCode @functions[i].code, @localNames[_funcName]
-        utils.printf '\n'
 
   _dumpCode: (code, localNames = @globalNames) ->
     i = 0
@@ -168,7 +166,6 @@ class @CodeObject
           utils.printf '%d (%s)', code[i], _funcName
         when 'JT', 'JF', 'JMP'
           utils.printf '%d', code[++i]
-      utils.printf('\n')
       i++
 
   reserveSlot: ->

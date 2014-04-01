@@ -1,5 +1,4 @@
-Canvas = require 'canvas'
-fs = require 'fs'
+Canvas = require './canvas'
 
 deg2rad = Math.PI / 180
 rad2deg = 180 / Math.PI
@@ -29,29 +28,17 @@ getMathFuncs = (cb) ->
 
 class Turtle
   constructor: (options) ->
-    # default canvas size is 400x400
-    if options.width? and options.height?
-      @_canvas = new Canvas options.width, options.height
-    else
-      @_canvas = new Canvas 400, 400
+    @_canvas = Canvas()
     @_ctx = @_canvas.getContext '2d'
-    # default output path is 'output.png'
-    @_output = options.output ? 'output.png'
-    # no anti-alias?
-    @_ctx.antialias = 'none' if options.antialias == false
-    
     # fill background with white
     @_ctx.save()
+    width = @_canvas.width
+    height = @_canvas.height
     @_ctx.fillStyle = 'white'
-    @_ctx.fillRect 0, 0, @_canvas.width, @_canvas.height
+    @_ctx.fillRect -width / 2, -height / 2, width, height
     @_ctx.restore()
-    # human coordinate system
-    # setTransform(m11, m12, m21, m22, dx, dy)
-    # Matrix:
-    # m11 m21 dx
-    # m12 m22 dy
-    # 0   0   1
-    @_ctx.setTransform 1, 0, 0, -1, @_canvas.width / 2, @_canvas.height / 2
+    # set position
+    @_ctx.moveTo 0, 0
     # set line cap and line join
     @_ctx.lineJoin = @_ctx.lineCap = 'round'
     @_posx = 0
@@ -130,11 +117,6 @@ class Turtle
     @_ctx.restore()
 
   font: (f) -> @_ctx.font = f
-
-  drawImage: (path) ->
-    out = fs.createWriteStream path
-    stream = @_canvas.createPNGStream()
-    stream.on 'data', (chunk) -> out.write chunk
 
   getFuncs: (cb) ->
     # cb(name, func, argc)

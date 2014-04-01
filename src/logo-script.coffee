@@ -24,7 +24,7 @@ builtins.getMathFuncs (name, func, argc) ->
 @run = (src, options = {}) ->
   parseTree = parser.parse src
   tabSet = new symTab.SymTabSet()
-  
+
   # Turtle
   turtleOpt =
     width: options.width
@@ -46,9 +46,9 @@ builtins.getMathFuncs (name, func, argc) ->
   console.log(require('util').inspect(parseTree, false, null)) if options.ast
 
   codeObj = new codeObject.CodeObject(tabSet.consts,
-                                   tabSet.globals,
-                                   tabSet.funcs,
-                                   tabSet.locals)
+                                      tabSet.globals,
+                                      tabSet.funcs,
+                                      tabSet.locals)
   codeGenerator = codeGen.getGenerator codeObj
   parseTree.accept new tree.SecondPassVisitor codeGenerator
 
@@ -67,7 +67,3 @@ builtins.getMathFuncs (name, func, argc) ->
   # kick it!
   vm = new logoVM.LogoVM codeObj
   vm.run()
-
-  # default output path is 'output.png'
-  outPath = options.output ? 'output.png'
-  turtle.drawImage outPath unless options.draw == false

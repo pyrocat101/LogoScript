@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LogoScript</title>
+</head>
+<script src="lib/bundle.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var runButton, codeBuffer;
+    var logo = require("logo-script");
+    runButton = document.getElementById("run-code");
+    codeBuffer = document.getElementById("code-buffer");
+    runButton.addEventListener("click", function () {
+      var code = codeBuffer.value;
+      logo.run(code);
+    })
+  });
+</script>
+<style>
+  textarea {
+    width: 700px;
+    height: 400px;
+    font-family: monospace;
+  }
+</style>
+<body>
+  <p>
+<textarea id="code-buffer">
+clear('black');
+setpc('#0F0');
+for (i = 1; i <= 14 * 360; i++) {
+  fd(1);
+  rt(1500 / i);
+}</textarea>
+    <br/>
+    <button id="run-code">Run!</button>
+  </p>
+  <div id="canvas-box">
+  </div>
+</body>
+</html>

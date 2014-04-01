@@ -167,10 +167,10 @@ vsprintf = `function(fmt, argv) {
 }`
 
 printf = (args...) ->
-  process.stdout.write @sprintf.apply(null, args)
+  console.log @sprintf.apply(null, args)
 
 vprintf = (fmt, argv) ->
-  process.stdout.write @vsprintf.call(null, fmt, argv)
+  console.log @vsprintf.call(null, fmt, argv)
 
 @sprintf = sprintf
 @vsprintf = vsprintf
