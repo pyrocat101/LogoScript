@@ -12,18 +12,18 @@ registerBuiltins = (funcTable, builtins) ->
   for builtin in builtins
     funcTable.add builtin.name, builtin.argc
 
-# add built-in functions
-builtinFuncs = []
-print = new codeObject.BuiltinFunction 'print', 1, console.log
-builtinFuncs.push print
-# math functions
-builtins.getMathFuncs (name, func, argc) ->
-  f = new codeObject.BuiltinFunction name, argc, func
-  builtinFuncs.push f
-
 @run = (src, options = {}) ->
   parseTree = parser.parse src
   tabSet = new symTab.SymTabSet()
+
+  # built-in functions
+  builtinFuncs = []
+  print = new codeObject.BuiltinFunction 'print', 1, console.log
+  builtinFuncs.push print
+  # math functions
+  builtins.getMathFuncs (name, func, argc) ->
+    f = new codeObject.BuiltinFunction name, argc, func
+    builtinFuncs.push f
 
   # Turtle
   turtleOpt =
