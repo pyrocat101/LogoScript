@@ -10,7 +10,7 @@ class ScopeChain
   constructor: (@codeObj) -> @_chain = []
 
   pushScope: -> @_chain.push new Scope
-  
+
   popScope: -> @_chain.pop()
 
   patchContinue: (label) ->
@@ -108,7 +108,7 @@ class @CodeObject
     funcs.forEach (name, fe) ->
       _array.push [fe.number, fe.argc, name]
     _array.sort (x, y) -> x[0] - y[0]
-    name: x[2], argc: x[1] for x in _array
+    {name: x[2], argc: x[1]} for x in _array
 
   # process local names
   _initLocalNames: (locals) ->
@@ -161,7 +161,7 @@ class @CodeObject
           _local = localNames[code[++i]]
           utils.printf '%d (%s)', code[i], _local
         when 'LDGLOBAL', 'STGLOBAL', 'DELGLOBAL'
-          _globalName = @globalNames[code[++i]] 
+          _globalName = @globalNames[code[++i]]
           utils.printf '%d (%s)', code[i], _globalName
         when 'CALL'
           _funcName = @funcInfos[code[++i]].name

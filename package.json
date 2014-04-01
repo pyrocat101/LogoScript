@@ -2,24 +2,35 @@
   "name": "logo-script",
   "preferGlobal": "true",
   "version": "0.1.0",
-  "author": "Linjie Ding <i@dingstyle.me>",
+  "author": "Linjie Ding <i@pyroc.at>",
   "description": "Turtle graphics with JS-like syntax",
-  "bin": { "logo": "./bin/logo" },
+  "bin": {
+    "logo": "./bin/logo"
+  },
   "scripts": {
     "start": "node ./bin/logo",
     "test": "bash ./test/draw-roses.sh"
   },
   "main": "./lib/logo-script",
-  "keywords": ["logo", "language", "logoscript", "compiler"],
-  "directories" : { "lib": "./lib" },
-  "engines": { "node": ">=0.6.x" },
+  "keywords": [
+    "logo",
+    "language",
+    "logoscript",
+    "compiler"
+  ],
+  "directories": {
+    "lib": "./lib"
+  },
+  "engines": {
+    "node": ">=0.10.x"
+  },
   "license": "MIT",
   "dependencies": {
-    "canvas": ">=0.12.0",
-    "commander": ">=0.6.0"
+    "canvas": "^1.1.3",
+    "commander": "^2.2.0"
   },
   "devDependencies": {
-    "coffee-script": ">=1.3.1",
-    "pegjs": ">=0.7.0"
+    "coffee-script": "^1.7.1",
+    "pegjs": "^0.8.0"
   }
 }

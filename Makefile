@@ -1,7 +1,7 @@
 all: parser compiler
 
 parser:
-	@pegjs --track-line-and-column src/parser.pegjs lib/parser.js
+	@pegjs src/parser.pegjs lib/parser.js
 
 compiler:
 	@coffee -c -o lib/ src/*.coffee

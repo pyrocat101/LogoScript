@@ -248,7 +248,7 @@ EOSNoLineTerminator
 EOF
   = !.
 
-  
+
 /* Whitespace */
 
 _
@@ -278,7 +278,7 @@ CallExpression
 
 Arguments
   = "(" __ arguments:ArgumentList? __ ")" {
-    return arguments !== "" ? arguments : [];
+    return arguments ? arguments : [];
   }
 
 ArgumentList
@@ -524,7 +524,7 @@ Statement
 
 Block
   = "{" __ statements:(StatementList __)? "}" {
-      return new node.Block(statements !== "" ? statements[0] : []);
+      return new node.Block(statements ? statements[0] : []);
     }
 
 StatementList
@@ -570,7 +570,7 @@ IfStatement
     ifStatement:Statement
     elseStatement:(__ ElseToken __ Statement)? {
       return new node.IfStatement(condition, ifStatement,
-          elseStatement !== "" ? elseStatement[3] : null);
+          elseStatement ? elseStatement[3] : null);
     }
 
 IterationStatement
@@ -607,9 +607,9 @@ ForStatement
     statement:Statement
     {
       return new node.ForStatement(
-          initializer !== "" ? initializer : null,
-          test !== "" ? test : null,
-          counter !== "" ? counter : null,
+          initializer ? initializer : null,
+          test ? test : null,
+          counter ? counter : null,
           statement);
     }
 
@@ -629,7 +629,7 @@ ReturnStatement
         expression:Expression EOS { return expression; }
       / EOSNoLineTerminator       { return ""; }
     ) {
-      return new node.ReturnStatement(value !== "" ? value : null);
+      return new node.ReturnStatement(value ? value : null);
     }
 
 /* ===== A.5 Functions and Programs ===== */
@@ -639,7 +639,7 @@ FunctionDeclaration
     "(" __ params:FormalParameterList? __ ")" __
     "{" __ elements:FunctionBody __ "}" {
       return new node.Function_(
-          name, params !== "" ? params : [], elements);
+          name, params ? params : [], elements);
     }
 
 FormalParameterList
@@ -652,11 +652,11 @@ FormalParameterList
     }
 
 FunctionBody
-  = elements:FunctionElements? { return elements !== "" ? elements : []; }
+  = elements:FunctionElements? { return elements ? elements : []; }
 
 Program
   = elements:SourceElements? {
-      return new node.Program(elements !== "" ? elements : []);
+      return new node.Program(elements ? elements : []);
     }
 
 SourceElements
