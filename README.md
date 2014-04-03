@@ -1,8 +1,12 @@
-# LogoScript, A Simple Scripting Language Compiler
+# LogoScript
 
-LogoScript is a dialect of Logo programming language (a.k.a. turtle graphics) with JavaScript-like syntax.
+TL;DR: [Demo][demo]
 
-Check out my [post][1] for a quick view (in Chinese).
+[demo]: http://pyrocat101.github.io/LogoScript/
+
+LogoScript is a dialect of Logo programming language (a.k.a. turtle graphics) with ECMAScript-like syntax.
+
+Please check out my [post][blog-post] for an overview (in Chinese). Also take a look at code snippets in `examples/`.
 
 # Features
 
@@ -12,20 +16,9 @@ LogoScript is designed to be uber simple. However, it supports functions, recurs
 
 The most part of LogoScript source code is written in CoffeeScript and is compiled into JavaScript(node.js). Note that it is only a toy language compiler, so I have barely applied any optimizations.
 
-A parser is generated using peg.js to translate source code into AST (Abstract syntax tree), upon which two passes are adapted to convert AST into bytecode. Without complicated data type manipulation and closure support, the number of opcodes are less than 50. 
+A parser is generated using peg.js to translate source code into AST (Abstract syntax tree), upon which two passes are adapted to convert AST into bytecode. Without complicated data type manipulation and closure support, the number of opcodes are less than 50.
 
 The LogoScript bytecode runs on a stack-based virtual machine, where the expressions are evaluated. By calling built-in functions, which are backed up by cairo library, our scripting language can draw image and output it into a file.
 
-# How to use?
 
-Use `npm install` to install node module dependencies.
-
-There is a test you can try out by `make test`, which draws a series of twisted rose curves in `test/roses`.
-
-``` shell
-bin/logo examples/spiral.logo -o spiral.png
-```
-
-see `--help` for command-line arguments.
-
-[1]: http://dingstyle.me/blog/2012/05/19/introducing-logoscript/
+[blog-post]: http://pyroc.at/blog/2012/05/19/introducing-logoscript/
