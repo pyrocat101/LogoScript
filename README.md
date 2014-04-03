@@ -1,4 +1,4 @@
-# logoscript
+# LogoScript
 
 TL;DR: [Demo][demo]
 
