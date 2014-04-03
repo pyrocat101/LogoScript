@@ -4,9 +4,48 @@ TL;DR: [Demo][demo]
 
 [demo]: http://pyrocat101.github.io/LogoScript/
 
-LogoScript is a dialect of Logo programming language (a.k.a. turtle graphics) with ECMAScript-like syntax.
+LogoScript is a dialect of Logo programming language with ECMAScript-like syntax.
+[Logo][logo] is an educational language designed by Seymour Papert and Wally Feurzeig that has its root in LISP.
+
+[logo]: http://en.wikipedia.org/wiki/Logo_(programming_language)
 
 Please check out my [post][blog-post] for an overview (in Chinese). Also take a look at code snippets in `examples/`.
+
+# Showcase
+
+The following code:
+
+``` javascript
+function getColor(theta) {
+  return round(abs(255 * cos(theta)));
+}
+
+function width(angle, radius) {
+  seth2(radius * sin(angle), radius * cos(angle));
+  return 2 * (1.5 + sin(45 + 2 * geth()));
+}
+
+function spiral(angle, twist) {
+  // Twisted Rose Curves
+  radius = 180 * sin(4 * angle);
+  angle = angle + 20 * sin(twist * angle);
+  setpw(width(angle, radius));
+  setpc('rgb(' + getColor(30 + 3 * angle) + ',0,255)');
+  setxy(radius * sin(angle), radius * cos(angle));
+  pd();
+}
+
+clear('black');
+pu();
+
+for (angle = 0; angle < 360; angle++) {
+  spiral(angle, 7);
+}
+```
+
+Produces the following image:
+
+![rose](rose.png)
 
 # Features
 
