@@ -57,7 +57,7 @@ The most part of LogoScript source code is written in CoffeeScript and is compil
 
 A parser is generated using peg.js to translate source code into AST (Abstract syntax tree), upon which two passes are adapted to convert AST into bytecode. Without complicated data type manipulation and closure support, the number of opcodes are less than 50.
 
-The LogoScript bytecode runs on a stack-based virtual machine, where the expressions are evaluated. By calling built-in functions, which are backed up by cairo library, our scripting language can draw image and output it into a file.
+The LogoScript bytecode runs on a stack-based virtual machine, where the expressions are evaluated. By calling built-in functions, which are backed up by Canvas API, our scripting language can draw image in the browser.
 
 
 [blog-post]: http://pyroc.at/blog/2012/05/19/introducing-logoscript/
