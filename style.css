@@ -1,0 +1,86 @@
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font: 400 14px/1.6 "Open Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #666;
+}
+
+h1, h2, h3 {
+  margin: 5px 0;
+  font-weight: 400;
+  color: #353535;
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  margin: 1em 2em 4em;
+}
+
+header #logo {
+  font-size: 2em;
+  margin-right: 0.2em;
+  display: inline;
+}
+
+#content {
+/*  overflow: hidden;*/
+}
+
+#code {
+  float: left;
+  margin: 2em;
+}
+
+#view {
+  float: left;
+  margin-left: 2em;
+}
+
+.clearfix {
+  clear: both;
+} 
+
+/* Code editor */
+
+div.CodeMirror pre {
+  font-family: monospace;
+  font-size: 16px;
+  line-height: 1.45em;
+}
+
+div.CodeMirror {
+  min-width: 400px;
+  min-height: 300px;
+  width: auto;
+  height: auto;
+}
+
+div.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+/* Canvas */
+
+#canvas-box {
+/*  border-left: 1px solid;*/
+/*  height: 200px;*/
+}
+
+#notice {
+  transition: visibility 1s;
+  background: rgba(220, 50, 47, 0.75);
+  position: absolute;
+  bottom: 0;
+  color: #efefef;
+  padding: 0.1em 0.4em;
+  font-family: monospace;
+  display: none;
+  width: 100%;
+}

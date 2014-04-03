@@ -1,11 +1,9 @@
 module.exports = ->
-  canvas = document.createElement('canvas')
-  canvas.width = 400
-  canvas.height = 400
-  canvasBox = document.getElementById 'canvas-box'
-  canvasBox.innerHTML = ""
-  canvasBox.appendChild canvas
+  canvas = document.getElementById('canvas');
   ctx = canvas.getContext '2d'
+  # reset state
+  ctx.restore()
+  ctx.save()
   # human coordinate system
   # setTransform(m11, m12, m21, m22, dx, dy)
   # Matrix:

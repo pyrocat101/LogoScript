@@ -1,4 +1,4 @@
-all: parser compiler
+all: parser compiler browser
 
 parser:
 	@pegjs src/parser.pegjs lib/parser.js
@@ -9,11 +9,10 @@ compiler:
 watch:
 	@coffee -cw -o lib/ src/*.coffee
 
-test:
-	@bash test/draw-roses.sh
+browser:
+	@browserify -r ./lib/logo.js:logo > lib/app.js
 
 clean:
-	rm -rf test/roses
 	rm -rf lib/*.js
 
-.PHONY: all watch compiler parser test clean
+.PHONY: all watch compiler parser clean
