@@ -39,7 +39,7 @@ clear('black');
 pu();
 
 for (angle = 0; angle < 360; angle++) {
-  spiral(angle, 7);
+  spiral(angle, 6);
 }
 ```
 
